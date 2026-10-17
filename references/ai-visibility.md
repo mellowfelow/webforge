@@ -26,11 +26,20 @@ Making content structured and authoritative enough that AI assistants quote or c
 - Comparison language where natural: "Unlike [category generic], [Brand] offers [differentiator]"
 - Case study and results language in blog content where available
 
+**Evidence-backed tactics (GEO paper, arXiv:2311.09735):** work at least one of these into blog/authority-section copy wherever natural —
+- **Direct quotations** (expert quotes, review excerpts, customer statements) — largest measured effect
+- **Explicit statistics with a named source** ("68% of X, per [source]") — not vague claims
+- **Cite sources inline** when referencing a claim/stat
+- **Fluent, natural phrasing over keyword density** — keyword stuffing measurably *hurts* AI-visibility, not just looks spammy
+
+These tactics help a smaller/newer site's content disproportionately *more* than an already-dominant competitor's — worth emphasizing to clients who feel they're competing against bigger incumbents.
+
 **Build checklist:**
 - [ ] Brand entity statement in homepage hero subtext (first 200 chars of body copy)
 - [ ] Concrete factual claims on homepage (shipping speed, product count, founding year)
 - [ ] About page contains specific, factual brand information (not just marketing)
 - [ ] Blog content contains definitive statements, not hedging language
+- [ ] Blog/authority-section copy includes at least one evidence-backed GEO tactic (quotation, cited statistic, or inline source citation) — not just comparison language
 
 ---
 
@@ -127,7 +136,7 @@ Schema markup is a direct information feed to AI systems. Beyond basic schema, s
 ```
 
 **Speakable schema (homepage + about page):**
-Marks specific sections as content AI assistants and voice search should read/cite.
+Speakable is a **Google-only, still-beta** mechanism — limited to US/English users and news-article content. It does nothing on Alexa, Siri, or Bixby, and won't apply to most homepage/about-page use the way it's scoped here. Keep it as a zero-cost hedge, not a relied-upon lever.
 ```json
 {
   "@context": "https://schema.org",
@@ -270,6 +279,8 @@ Perplexity (Sonar Pro) and other live-web engines use real-time web search, NOT 
 - Real social profiles (IG, X, etc.) that link to the site, matching schema sameAs
 - The official brand domain linking to the store (two-way sameAs)
 - Genuine reviews / mentions on category directories
+
+Claiming and keeping Google Business Profile and Apple Business Connect listings current (both free, self-service) also feeds voice-assistant "near me" answers on Google Assistant/Gemini and Siri — not just Maps/local-pack results.
 
 If a backlink tool shows a huge link count from very few referring domains + Authority Score near 0 + no organic traffic + a traffic graph that spiked then crashed: that is inherited spam/PBN from a prior domain owner, not real authority. Check GSC → Security & Manual Actions BEFORE any disavow. Google ignores most spam links automatically; disavow only on a manual action. Prioritize building REAL signals over disavowing.
 

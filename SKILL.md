@@ -818,6 +818,7 @@ If PROJECT.md present: read it (note backend = Yes/No). Else ask: brand+domain, 
 
 **AUDIT C — AI-Visibility audit** ("AI visibility check", "ai seo", "GEO/AEO")
 - Brand entity statement on homepage; visible "About [Brand]" authority section.
+- **GEO evidence-backed tactics present** (direct quotations, cited statistics, inline source citations) in blog/authority-section copy — not just comparison language. See `references/ai-visibility.md` GEO section.
 - Store/Organization JSON-LD has description, foundingDate, foundingLocation, address, areaServed, numberOfItems, knowsAbout, priceRange, sameAs, brand, AggregateOffer.
 - FAQPage schema on homepage + FAQ page; direct-answer format.
 - About page >700 words, milestones timeline, differentiation grid, footprint.
@@ -943,10 +944,10 @@ Every site built with WebForge includes the full agent-ready file set from day o
 
 ### A — robots.txt
 
-Always include explicit `User-agent` rules for all major AI crawlers with `Allow: /`. Also add a `Content-Signal` directive right after the disallow rules — an emerging IETF-draft standard that isitagentready.com checks under Bot Access Control: `Content-Signal: search=yes, ai-input=yes, ai-train=no` (allow indexing and AI citation/retrieval, opt out of training — adjust per client preference, never fabricate a stance they haven't agreed to). Append the crawler block after that:
+Always include explicit `User-agent` rules for all major AI crawlers with `Allow: /`. Also add a `Content-Signal` directive right after the disallow rules — an emerging IETF-draft standard that isitagentready.com checks under Bot Access Control: `Content-Signal: search=yes, ai-input=yes, ai-train=yes` (default: allow indexing, AI citation/retrieval, AND training — training opt-out has no documented effect on ranking or live-answer visibility per any major platform, so permissive-by-default is the baseline; adjust per client preference, never fabricate a stance they haven't agreed to). Append the crawler block after that:
 
 ```
-Content-Signal: search=yes, ai-input=yes, ai-train=no
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # AI crawlers — welcome to index product & content pages
 User-agent: GPTBot
@@ -955,13 +956,28 @@ Allow: /
 User-agent: ChatGPT-User
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
 User-agent: ClaudeBot
 Allow: /
 
-User-agent: Claude-Web
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
 Allow: /
 
 User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: MistralAI-User
+Allow: /
+
+User-agent: MistralAI-Index
 Allow: /
 
 User-agent: Applebot
@@ -980,6 +996,9 @@ User-agent: Google-Extended
 Allow: /
 
 User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-WebIndexer
 Allow: /
 
 User-agent: cohere-ai
@@ -1729,7 +1748,7 @@ Some verticals carry real legal or ad-account risk in their WORD CHOICES, not ju
 | `references/niche-variants.md` | Locale, age gates, disclaimers, payment variants, shop structures — the starting point per vertical |
 | `references/backend.md` | **Client backend (backend = Yes → Cloudflare only)** — two-layer model, manifest, functions, admin panel, SEO Score, `schema.sql`, setup guide, import workflow, backend audit |
 
-Every reference is current as of v11.1 (seo.md, vercel.md, and cloudflare.md updated in v11.1 with the live Rich Results Test pass; forms.md and reply-portal.md rewritten in v11 — Web3Forms retired, Reply Portal now default-Yes on both targets via Pages Functions on Cloudflare; intake.md Section P updated to match; design-quality.md is new in v9.1 and gained motion numerics, the colour proportion law, and the dated-AI-tells registry (rule 8) in v11.1; accessibility.md + performance.md are new in v9; nextjs.md carries v9 deltas; mobile-native.md and usability-audit.md are new in v11.1). Each opens with a delta block where behaviour changed — read it before the body. **On any conflict, SKILL.md wins.**
+Every reference is current as of v11.1 (seo.md, vercel.md, and cloudflare.md updated in v11.1 with the live Rich Results Test pass; forms.md and reply-portal.md rewritten in v11 — Web3Forms retired, Reply Portal now default-Yes on both targets via Pages Functions on Cloudflare; intake.md Section P updated to match; design-quality.md is new in v9.1 and gained motion numerics, the colour proportion law, and the dated-AI-tells registry (rule 8) in v11.1; accessibility.md + performance.md are new in v9; nextjs.md carries v9 deltas; mobile-native.md and usability-audit.md are new in v11.1; ai-visibility.md gained the GEO paper's evidence-backed tactics, corrected Speakable schema's framing, and a Google Business Profile/Apple Business Connect voice-answer note in v11.1; seo.md's FAQPage/Speakable framing corrected and Bing AI Performance/DuckDuckGo notes added in v11.1; the robots.txt template's AI-crawler list corrected and completed (retired `Claude-Web` replaced, `OAI-SearchBot`/`Meta-WebIndexer`/`Perplexity-User`/`MistralAI-User`/`MistralAI-Index` added, `Content-Signal` default changed to `ai-train=yes` to match the per-bot rules) in v11.1). Each opens with a delta block where behaviour changed — read it before the body. **On any conflict, SKILL.md wins.**
 
 ---
 

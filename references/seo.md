@@ -166,6 +166,7 @@ Required FAQ questions (minimum — add niche-specific ones):
 ```
 
 ### Speakable JSON-LD (homepage + about page)
+Speakable is a **Google-only, still-beta** mechanism — limited to US/English users and news-article content. It does nothing on Alexa, Siri, or Bixby, and won't apply to most homepage/about-page use the way it's scoped here. Keep it as a zero-cost hedge, not a relied-upon lever.
 ```json
 {
   "@context": "https://schema.org",
@@ -232,6 +233,7 @@ Adjust depth to match actual hierarchy.
 Only include aggregateRating if real reviews exist — client-provided or migrated from their existing site/profiles (preserve those). Never invent reviews that do not exist.
 
 ### FAQPage JSON-LD (FAQ page + homepage FAQ section)
+Google deprecated the FAQ rich result in 2026 — this markup no longer produces a visible snippet in classic Google Search. Keep it anyway: it structures Q&A content for AI/LLM extraction (AEO) — AI assistants and answer engines (ChatGPT, Perplexity, AI Overviews) can still parse this structured Q&A data when forming an answer.
 ```json
 {
   "@context": "https://schema.org",
@@ -388,13 +390,16 @@ After deploying:
 2. Submit sitemap.xml → GSC → Sitemaps → Submit
 3. Request indexing for homepage and shop page
 4. Check Coverage report after 48h
-5. Enable Rich Results for Product and FAQ schema — verified live via SKILL.md AUDIT F's Rich Results Test pass, not just assumed from static JSON validity
+5. Verify Product rich results live via SKILL.md AUDIT F's Rich Results Test pass, not just assumed from static JSON validity. **FAQ rich results were deprecated by Google in 2026** — FAQPage schema no longer produces a visible snippet in classic Search; keep the markup for AI/LLM extraction value (AEO), not for a Rich Results Test pass on FAQ specifically.
 6. Set preferred domain (non-www)
 
 ## Bing Webmaster Tools setup
 1. Import from GSC (fastest method)
 2. Submit sitemap.xml
 3. Verify IndexNow key — already in meta tags and [key].txt file from build
+4. Once verified, check the AI Performance report (Bing Webmaster Tools) alongside GSC — tracks citation counts in Copilot/Bing AI answers.
+
+**DuckDuckGo:** no separate webmaster program exists — DuckDuckGo sources most organic links from Bing, so the Bing setup above already covers it.
 
 ## IndexNow
 Key generated during build. Already placed in:
