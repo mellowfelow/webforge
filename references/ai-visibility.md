@@ -4,7 +4,7 @@
 >
 > **1. Declaration vs capability.** This file (and Agent-Ready Sections A–N) describe the DECLARATION layer — static files that *describe* what a site offers. On a **Vercel** target there is now a CAPABILITY layer too: a real MCP server at `/api/mcp`, real JSON APIs, live ACP/UCP. See `references/agent-live.md`. A static site advertising an MCP server it cannot host is a lie and fails crosscheck B2. **Cloudflare targets ship the declaration layer only** and cap ~79 on isitagentready's free plan — that is the plan's ceiling, not a defect. Do not chase it.
 >
-> **2. Truthfulness is enforced, not encouraged.** "Never fabricate brand facts" is now a blocking crosscheck (B7) that scans the entire build output — HTML, JSON-LD, llms.txt, `.well-known/*`, alt text, and MCP tool descriptions — against the compliance block in `docs/PROJECT.md`. Invented statistics, awards, press or client names are ship-stoppers. A fabricated fact is worse than a missing one: it is a lie that outranks.
+> **2. Do not fabricate — but do preserve real content.** The ban is on INVENTION, not on real content. Inventing statistics, awards, press or client names that do not exist is a ship-stopper (a fabricated fact is a lie that outranks). But real facts the client provides, or that already exist on the site being migrated — reviews, ratings, awards, testimonials, named clients — are legitimate and MUST be carried over faithfully, with `Review`/`AggregateRating` schema where the reviews are real. Record each real authority fact and its source in `docs/PROJECT.md`. When migrating a site, never strip its real reviews/awards to satisfy this rule — preserve them.
 >
 > Off-site reality still decides most of this. No amount of on-site schema substitutes for real mentions, real profiles, real citations. Say so to clients rather than overselling the file set.
 
@@ -251,12 +251,12 @@ ON-SITE, add truthfully:
 8. Brand Narrative
 9. Product Lines / Brands
 
-NEVER fabricate (only add if the client supplies REAL facts):
+Publish when REAL (client-supplied, or already on the site being migrated) — never invent:
 10. Named Individuals (founders/executives)
 11. Awards & Rankings
 12. Endorsements / Partnerships
 
-Fabricating any of #10-12 = misinformation AI will repeat = brand risk. If absent, report them as "needs real client input", do not invent.
+If #10-12 exist (client-provided or on the migrated site), publish them with their source. If they genuinely do not exist, omit them and report as "needs real client input" — never invent them. Inventing #10-12 = misinformation AI will repeat = brand risk.
 
 ### Schema for AI (homepage Store/Organization)
 @type ["Store","Organization"], description (brand entity statement), foundingDate, foundingLocation (Place), address (PostalAddress region+country), areaServed, numberOfItems, knowsAbout[], priceRange, brand, makesOffer (AggregateOffer — NEVER a bare itemOffered Product), sameAs[] (official domain + socials). Plus a visible "About [Brand]" authority section on the homepage and a milestones timeline + differentiation grid on the About page (>700 words).

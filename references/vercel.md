@@ -37,7 +37,7 @@ No ZIP. No upload. The repo IS the deliverable.
 | `RESEND_API_KEY` | `provider: 'resend'` | Vercel → Settings → Environment Variables. **Never in the repo** (crosscheck B5). |
 | `TARGET` | building for Cloudflare | local/CI only — never set on Vercel |
 
-Anything reaching the browser needs `NEXT_PUBLIC_`. Web3Forms access keys are public by design — keep them in `src/config/site.js`, not env.
+Anything reaching the browser needs `NEXT_PUBLIC_`. SMTP credentials, `ADMIN_PASSCODE`, and `RESEND_API_KEY` are all server-only secrets — never `NEXT_PUBLIC_`, never in `src/config/site.js`.
 
 ## Connecting a domain later
 
@@ -71,7 +71,7 @@ Runtime: default (Node). Only use `export const runtime = 'edge'` if a route nee
 
 **Some pages 404:** `generateStaticParams` missing or incomplete for that route.
 **`.well-known/*` 404s:** files must be in `public/.well-known/`. If uploaded via a browser, they were **silently skipped** — browsers skip dotfolders. Use git.
-**Forms fail:** `provider: 'resend'` needs `RESEND_API_KEY` set in Vercel AND a verified domain. `web3forms` needs `api.web3forms.com` in CSP `connect-src`.
+**Forms fail:** `provider: 'smtp'` needs `SMTP_HOST/USER/PASS` set in Vercel — check `sendMail()` isn't silently returning `{sent:false}`. `provider: 'resend'` needs `RESEND_API_KEY` set in Vercel AND a verified domain.
 
 ## Verify the deploy — never assume
 
@@ -103,5 +103,7 @@ npx lighthouse https://[domain]/ --preset=perf --form-factor=mobile --quiet --ch
 npx @axe-core/cli https://[domain]/
 ```
 Assert: all crawl URLs 200; Lighthouse Performance/SEO/Accessibility/Best-Practices >=95; LCP<2.5s, CLS<0.1, INP<200ms; axe zero critical/serious. See `references/performance.md` + `references/accessibility.md`.
+
+**Rich Results Test — not a CLI step, don't skip it because it isn't in the command block above.** Google's Rich Results Test has no scriptable API for this workflow; run it live via the in-app browser at `search.google.com/test/rich-results` against one representative URL per schema type shipped (product page, FAQ page, homepage, a blog post, etc.). See `references/seo.md` § JSON-LD validity and SKILL.md AUDIT F.
 
 **Vercel target only:** also assert `/api/mcp` answers `tools/list`, and that its tools match `server-card.json` exactly (crosscheck B8).

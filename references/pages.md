@@ -68,7 +68,7 @@ One component, two routes. `generateStaticParams` from `CATEGORIES`.
 7. Related products — same category, 3
 8. Closing links to guide + wholesale
 
-**Schema:** exactly one `Product` (+ `Offer`, full `images` array, `AggregateRating` **only if reviews are real**) · `BreadcrumbList`.
+**Schema:** exactly one `Product` (+ `Offer`, full `images` array, `AggregateRating` **only if reviews are real** — client-provided or migrated; never invented) · `BreadcrumbList`.
 
 ## Blog (`app/blog/page.jsx`, `app/blog/[slug]/page.jsx`)
 
@@ -153,6 +153,10 @@ img,video,iframe{max-width:100%;height:auto}
 }
 ```
 Columns 4→2→1 · hamburger ≤700px · tap targets ≥44px · sticky add-to-cart on mobile PDP · footer single column · `prefers-reduced-motion` respected.
+
+**Read `references/mobile-native.md` for the platform-level layer** — tap highlight, the `dvh`/`svh`
+height bug, input zoom, safe-area insets, overscroll, and the full "never ship" checklist. The rules
+above are the floor; that file is what separates "survives on a phone" from "feels installed."
 
 ## Accessibility
 

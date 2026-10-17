@@ -1,7 +1,8 @@
-# WebForge Backend Module (OPTIONAL — read only when backend = Yes) (v8)
+# WebForge Backend Module (OPTIONAL — read only when backend = Yes) (v9)
 
-> **v8 delta — read first.** The backend is **unchanged** and this file remains authoritative. Three framing notes:
+> **v9 delta — read first.** **The client's login path moved from `/admin` to `/cms`.** Reason: the Reply Portal (`references/reply-portal.md`, Section P) is now the default on every site, both targets, and it owns `/admin` — a Cloudflare site with both Section O = Yes and Section P = Yes would otherwise ship two unrelated systems fighting over the same output path (the CMS's hand-written `admin/index.html` vs. the Reply Portal's Next.js-exported `app/admin/**`). `/admin` always means the Reply Portal now; `/cms` always means this module. Update every reference below accordingly if you're working from an older copy of this file or an existing site built before this change.
 >
+> Everything else here is otherwise unchanged from v8:
 > - **The backend is Cloudflare-only.** It is built on D1 + R2 + Pages Functions. **backend = Yes forces the deploy target to Cloudflare Pages** — say this plainly at intake rather than discovering it at build time. Vercel + backend is NOT supported; do not improvise a port to Postgres/Blob.
 > - **The reverse is NOT true.** Cloudflare + backend = No is a normal, fully supported, first-class build (a plain static export). Never infer a backend from the target. Default is No, and most sites should stay No — a backend is only worth it when the client genuinely wants to edit content themselves.
 > - **The site layer is now a Next.js static export**, not hand-written HTML. The two-layer model is unaffected: Claude still owns the template layer, the client still owns the content layer in D1 + R2, and the edge merge still injects saved values before the page reaches the visitor. `data-cms` keys are still permanent IDs. Where this file says "the ZIP", read: the ZIP produced by `npm run zip` from `out/`.
@@ -16,7 +17,7 @@ Everything here runs **inside one Cloudflare Pages project**, on the operator's 
 
 ## 0. What this is (and isn't)
 
-**Is:** a native, Cloudflare-only CMS that gives the client a login at `clientdomain.com/admin` to manage content, blog posts, products, media, and SEO details — without touching code, ZIP files, or the Cloudflare dashboard. The site stays Claude-editable at the same time.
+**Is:** a native, Cloudflare-only CMS that gives the client a login at `clientdomain.com/cms` to manage content, blog posts, products, media, and SEO details — without touching code, ZIP files, or the Cloudflare dashboard. The site stays Claude-editable at the same time.
 
 **Isn't WordPress / RankMath:** Cloudflare Pages is static — no PHP, no MySQL, no WordPress, so real RankMath cannot run and there is nothing to "read RankMath settings from." Instead WebForge **replicates** the experience: content in **D1** (Cloudflare's serverless SQL), media in **R2** (object storage), logic in **Pages Functions**, and a native **SEO Score panel** that runs the same heuristic checks RankMath is known for. The client gets the familiar green/orange/red score and checklist; under the hood it's all Cloudflare.
 
@@ -104,18 +105,18 @@ functions/
     import.js           POST a *-import.json body → validate against manifest collection schema → bulk upsert into D1 (slug = key, last-write-wins). Auth required. Returns counts + any skipped rows.
     seo-score.js        POST {content, focusKeyword, title, metaDescription, url} → returns 0-100 score + per-check pass/warn/fail + snippet preview. Pure heuristic; no external calls.
     setup.js            GET/POST guarded by ?token=ADMIN_SETUP_TOKEN → one-time: create first admin (email + hashed password) → then self-disable (refuses once a user row exists).
-admin/
+cms/
   index.html            Login screen (posts to /api/login). Mobile-first.
   dashboard.html        Auto-built from cms-manifest.json: Content (page fields), Blog, Products, Media, SEO (per page/item: focus keyword + meta + live SEO Score panel + snippet preview), Import (upload *-import.json). Mobile-first, single-column on phones.
-  admin.js              Fetches manifest + content from /api/*, renders controls, autosaves, runs SEO Score live, handles uploads + import.
-  admin.css             Admin styling (separate from public styles.css).
+  cms.js                Fetches manifest + content from /api/*, renders controls, autosaves, runs SEO Score live, handles uploads + import.
+  cms.css               Admin styling (separate from public styles.css).
 cms-manifest.json       (section 2)
 schema.sql              (section 4)
 CLOUDFLARE-SETUP.md     (section 6 — the dashboard setup + deploy guide, tailored to this site)
 ```
-Plus: public templates carry `data-cms` marks; `robots.txt` gets `Disallow: /admin/` + `Disallow: /api/`; `_headers` sets `/admin/*` → `Cache-Control: no-store`.
+Plus: public templates carry `data-cms` marks; `robots.txt` gets `Disallow: /cms/` + `Disallow: /api/`; `_headers` sets `/cms/*` → `Cache-Control: no-store`.
 
-**Stack constraints to respect (Cloudflare Pages Functions):** CPU ~10ms/request free (50ms paid) — keep edge work light (D1 read + HTMLRewriter is fine; no heavy compute); subrequest limits apply; use the D1 and R2 **bindings** (`env.DB`, `env.MEDIA`) — never connection strings. Set `compatibility_date` recent; enable `nodejs_compat` only if a function needs Node APIs (prefer Web Crypto, which needs no flag).
+**Stack constraints to respect (Cloudflare Pages Functions):** CPU ~10ms/request free (50ms paid) — keep edge work light (D1 read + HTMLRewriter is fine; no heavy compute); subrequest limits apply; use the D1 and R2 **bindings** (`env.DB`, `env.MEDIA`) — never connection strings. Compatibility date/flags are set in the dashboard (Settings → Functions → Compatibility Date / Compatibility Flags), **not** a `wrangler.toml` — this is a direct/drag-and-drop ZIP upload, not a `wrangler`-CLI or Git-connected deploy, so that file is never read (same mechanism the Reply Portal's `nodejs_compat` flag uses — `references/cloudflare.md`). Enable `nodejs_compat` only if a function needs Node APIs (prefer Web Crypto, which needs no flag).
 
 ---
 
@@ -192,7 +193,7 @@ Only create the collection tables the client actually uses (drop `products` if t
 
 ## 5. The SEO Score panel (the RankMath replica)
 
-Pure heuristic, computed in `seo-score.js` and/or client-side in `admin.js` — no WordPress, no external API. For a given {content/body, focusKeyword, title, metaDescription, url}, score 0-100 with traffic-light checks:
+Pure heuristic, computed in `seo-score.js` and/or client-side in `cms.js` — no WordPress, no external API. For a given {content/body, focusKeyword, title, metaDescription, url}, score 0-100 with traffic-light checks:
 
 - Focus keyword in SEO title — and ideally near the start
 - Focus keyword in meta description
@@ -235,7 +236,7 @@ Open `[site-slug]-db` → Console tab. Open the generated `schema.sql`, copy ALL
 Sidebar → R2 Object Storage → Create bucket. Name it `[site-slug]-media`. Create.
 
 ## 4. Create the Pages project (upload)
-Workers & Pages → Create → Pages → Upload assets. Project name `[site-slug]`. Drag in the WHOLE generated site folder (it includes the `functions/` and `admin/` folders — don't upload only the HTML). Deploy. The static site is now live; backend not wired yet.
+Workers & Pages → Create → Pages → Upload assets. Project name `[site-slug]`. Drag in the WHOLE generated site folder (it includes the `functions/` and `cms/` folders — don't upload only the HTML). Deploy. The static site is now live; backend not wired yet.
 
 ## 5. Attach the bindings
 Project → Settings → Bindings → Add (do this twice):
@@ -252,14 +253,14 @@ Project → Settings → Variables and Secrets. Add two, tick Encrypt on each:
 Deployments tab → latest deployment → ⋯ → Retry deployment (or Create new deployment and re-upload the same folder). Without this the functions can't see the database.
 
 ## 8. Create the client's login (once)
-Visit `[site-slug].pages.dev/admin/setup?token=YOUR_ADMIN_SETUP_TOKEN` once. Set the client's email + password. It writes the hashed credentials and disables itself. The client now logs in at `/admin`.
+Visit `[site-slug].pages.dev/cms/setup?token=YOUR_ADMIN_SETUP_TOKEN` once. Set the client's email + password. It writes the hashed credentials and disables itself. The client now logs in at `/cms`.
 
 ## 9. Connect the domain
-Project → Settings → Custom domains → Set up a domain → enter `[domain]`. Cloudflare adds the DNS. Login then lives at `[domain]/admin`.
+Project → Settings → Custom domains → Set up a domain → enter `[domain]`. Cloudflare adds the DNS. Login then lives at `[domain]/cms`.
 
 ## Verify it worked
 1) Load the site — defaults render, content is in the HTML source (SEO-safe).
-2) Go to /admin, log in.
+2) Go to /cms, log in.
 3) Change one field, reload the public page — your edit shows live.
 
 ## Future updates
@@ -283,7 +284,7 @@ On a backend site, content is DATA, not markup. When the operator asks Claude to
        "published":true, "date":"2026-06-22" }
    ]
    ```
-2. The operator/client loads it via the admin panel: **log into `/admin` → Import → upload the .json → Import**. `api/import.js` validates each record against the schema and upserts into D1 (slug is the key; re-importing the same slug updates it). Items go live immediately and are fully editable in the dashboard afterward.
+2. The operator/client loads it via the admin panel: **log into `/cms` → Import → upload the .json → Import**. `api/import.js` validates each record against the schema and upserts into D1 (slug is the key; re-importing the same slug updates it). Items go live immediately and are fully editable in the dashboard afterward.
 3. Claude also adds the new public URLs to `sitemap.xml` (generated from the import slugs) and refreshes `<lastmod>` — these ship in the next site ZIP so the pages are indexable.
 
 **Fallback (only if the operator prefers):** Claude can emit `seed.sql` (INSERT statements) to paste into the D1 Console (same place as Step 2). The Import button is the primary, no-SQL path.
@@ -311,10 +312,10 @@ Record all of this in PROJECT.md under a `## Backend` block so Mode 2/4 know the
 - No hardcoded posts/products that the edge would override or duplicate.
 - `_middleware.js`: a default fallback exists for every injected zone; edge-emitted JSON-LD parses and follows the per-page-type schema rules; no heavy compute (CPU-budget safe).
 - Auth: `login.js` compares a HASH (no plaintext); sessions signed with `SESSION_SECRET` (HttpOnly/Secure/SameSite); `setup.js` self-disables once a user exists and is `ADMIN_SETUP_TOKEN`-gated.
-- Indexing: `robots.txt` disallows `/admin/` + `/api/`; `_headers` sets `/admin/*` to `no-store`.
+- Indexing: `robots.txt` disallows `/cms/` + `/api/`; `_headers` sets `/cms/*` to `no-store`.
 - Import files: valid JSON; match the collection schema (required fields present, types correct, unique slugs).
 - `CLOUDFLARE-SETUP.md`: present, names this site's project/DB/bucket, includes both secrets and the post-binding redeploy step.
-- `node --check` passes on every file in `functions/` and `admin/*.js`.
+- `node --check` passes on every file in `functions/` and `cms/*.js`.
 
 ---
 

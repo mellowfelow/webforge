@@ -6,8 +6,10 @@
 > - **`sitemap.xml` and `robots.txt` are generated** by `app/sitemap.js` / `app/robots.js` from `SITE`. Never write them by hand. Exclude every `noindex` page from the sitemap.
 > - **`SearchAction` is Google-dead** — the sitelinks search box was deprecated on 21 Nov 2024. Emit it ONLY when `/search/` really exists, and only for agents (SKILL.md Rule 10).
 > - **JSON-LD is built as a JS object and `JSON.stringify`d** — never templated as a string. That is how invalid schema ships.
-> - **`AggregateRating` / `Review` only for real, attributable reviews.** Never generate them.
+> - **`AggregateRating` / `Review` for real, attributable reviews — including reviews migrated from the client's existing site or business profiles (preserve them, with their real counts/ratings + source).** Never invent reviews that do not exist.
 > - Meta description band: **110–158 chars**. Titles ≤60. The crosscheck enforces both.
+
+> **v11.1 delta.** JSON-LD validity checking was static-only (JSON parses, required fields present) — this confirms the schema is *valid*, not that Google treats it as *rich-result-eligible*, which is a stricter, narrower bar. Static checks can't tell the difference; a live Rich Results Test run can. See § JSON-LD validity below and SKILL.md AUDIT F.
 
 ---
 
@@ -227,7 +229,7 @@ Adjust depth to match actual hierarchy.
   }
 }
 ```
-Only include aggregateRating if actual reviews exist. Never fabricate.
+Only include aggregateRating if real reviews exist — client-provided or migrated from their existing site/profiles (preserve those). Never invent reviews that do not exist.
 
 ### FAQPage JSON-LD (FAQ page + homepage FAQ section)
 ```json
@@ -308,7 +310,7 @@ Output shape (what to aim for — do not hand-write):
 - `/sitemap/2.xml` — categories
 - `/sitemap/3.xml` — blog posts
 
-Rules: canonical URLs only; `<lastmod>` on every URL; **exclude** /cart/, /account/, /tracking/, /search, all /thank-you-*/, not-found, and any noindex page; no duplicate URL across children; no redirected or 404 URL. The crosscheck (item 36) validates the index, each child, and the image entries.
+Rules: canonical URLs only; `<lastmod>` on every URL; **exclude** /cart/, /account/, /tracking/, /search, all /thank-you-*/, not-found, and any noindex page; no duplicate URL across children; no redirected or 404 URL. The crosscheck (item 41) validates the index, each child, and the image entries.
 
 ---
 
@@ -386,7 +388,7 @@ After deploying:
 2. Submit sitemap.xml → GSC → Sitemaps → Submit
 3. Request indexing for homepage and shop page
 4. Check Coverage report after 48h
-5. Enable Rich Results for Product and FAQ schema
+5. Enable Rich Results for Product and FAQ schema — verified live via SKILL.md AUDIT F's Rich Results Test pass, not just assumed from static JSON validity
 6. Set preferred domain (non-www)
 
 ## Bing Webmaster Tools setup
@@ -408,6 +410,8 @@ Log key in PROJECT.md → Hosting → IndexNow key.
 - BreadcrumbList: ListItem objects MUST be joined with `},{` not `}{`. The `}{` bug makes the whole block invalid and silently kills ALL structured data on the page.
 - NO bare `{"@type":"Product","name":...}` on non-product pages. Google flags "Product snippets: 1 invalid item detected" (GSC + Bing). For homepage price ranges use AggregateOffer (offerCount/lowPrice/highPrice/priceCurrency) — never a nested itemOffered Product. Audit homepage for ANY "@type":"Product".
 - Real product PAGES keep full Product+Offer (name, image, description, offers w/ price+priceCurrency+availability).
+
+**JSON-parse validity is necessary but not sufficient.** A block can parse as perfectly valid JSON and still fail Google's rich-result eligibility (e.g. missing a field Google requires to actually render the rich snippet, even though schema.org doesn't strictly require it). The static crosscheck only catches parse errors and the known traps above — it cannot confirm eligibility. That requires an actual live run through Google's Rich Results Test post-deploy — see SKILL.md AUDIT F.
 
 ### Meta description bands
 - Google truncates >160. Bing flags outside ~120-158 (stricter). Target ~150. Keep og:description + twitter:description in sync with the meta description.

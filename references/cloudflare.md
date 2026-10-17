@@ -1,12 +1,12 @@
-# Cloudflare Pages — Deploy Configuration (v8)
+# Cloudflare Pages — Deploy Configuration (v9)
 
-> **v8 delta — read first.**
+> **v9 delta — read first.**
 > - **Cloudflare is now one of two targets, not the default.** Vercel is default (`references/vercel.md`). Cloudflare remains **first-class** — for clients already on Cloudflare, ZIP-upload workflows, anyone who doesn't want Git, and **any site with backend = Yes**.
 > - **Choosing Cloudflare does NOT imply a backend.** Cloudflare + backend = No is a plain static site. Only the reverse is forced: backend = Yes → Cloudflare.
 > - **The site is a Next.js static export**, not hand-written HTML. `npm run build:static` (`TARGET=static` → `output:'export'`) → `out/` → zip the CONTENTS of `out/`.
 > - **`_headers` and `_redirects` are GENERATED** from `SITE.domain` by `scripts/gen-agent-files.mjs`. Never hand-edit them — crosscheck item 13 fails on drift. The templates below show the OUTPUT to aim for.
-> - **`src/app/api/**` does not exist in an export build.** No MCP server, no JSON API, no `resend` forms. `.well-known/*` must not claim them (crosscheck B2/B3). `web3forms` only.
-> - **Agent ceiling ~79** on the free plan. Accepted. Do not add Pages Functions purely to chase points.
+> - **`src/app/api/**` does not exist in an export build.** No MCP server, no `resend` forms. `.well-known/*` must not claim these (crosscheck B2/B3). **Forms and the Reply Portal now run on Cloudflare too, via Pages Functions** (`functions/api/**`) — a separate directory Cloudflare deploys as edge functions alongside the static export, not the Next.js API routes that `output:'export'` drops. See "Forms & Reply Portal (Pages Functions)" below and `references/forms.md` / `references/reply-portal.md`.
+> - **Agent ceiling ~79** on the free plan. Accepted. Functions exist for forms/portal correctness, not to chase agent-readiness points.
 >
 > **ZIP handover — say all three, every time:**
 > 1. Extract it. GitHub/hosts do not unpack ZIPs.
@@ -161,8 +161,7 @@ Proxy: ON (orange cloud)
 - [ ] Page speed: run PageSpeed Insights on homepage
 - [ ] GSC: submit sitemap
 - [ ] BWMT: verify via GSC import
-- [ ] Test one Product schema with Google Rich Results Test
-- [ ] Test FAQ schema with Google Rich Results Test
+- [ ] Rich Results Test — full pass, all schema types (see SKILL.md AUDIT F / `references/seo.md` § JSON-LD validity), not just a Product+FAQ spot-check
 
 ---
 
@@ -210,10 +209,10 @@ http://DOMAIN.com/* https://DOMAIN.com/:splat 301!
 # then any legacy redirects…
 ```
 
-`_headers` — CSP must whitelist the form API + chat widget; add caching + HTML revalidation:
+`_headers` — CSP `connect-src` needs only `'self'` for forms now (same-origin Pages Functions, no third-party form API) plus any chat widget origin; add caching + HTML revalidation:
 ```
 /*
-  Content-Security-Policy: …connect-src 'self' https://api.web3forms.com https://*.jivosite.com https://*.jivochat.com wss://*.jivosite.com wss://*.jivochat.com; …
+  Content-Security-Policy: …connect-src 'self' https://*.jivosite.com https://*.jivochat.com wss://*.jivosite.com wss://*.jivochat.com; …
   Cache-Control: public, max-age=3600, must-revalidate
 /images/*
   Cache-Control: public, max-age=31536000, immutable
@@ -231,6 +230,27 @@ After deploy: PURGE Cloudflare cache (dashboard → Caching → Purge Everything
 
 ---
 
+## Forms & Reply Portal (Pages Functions) — every Cloudflare site now, not opt-in
+
+Unlike the CMS backend below, this is not gated by Section O — **every Cloudflare site needs working contact/order/wholesale forms**, and Section P (Reply Portal) is offered on Cloudflare exactly as it is on Vercel. Both run on the same mechanism: a `functions/` directory at the project root, deployed alongside the static `out/` export as edge functions. No build step, no framework — Cloudflare auto-routes `functions/api/contact.js` to `/api/contact`, `functions/api/admin/orders.js` to `/api/admin/orders`, and so on, matching the same paths the front-end's `fetch()` calls already use on Vercel.
+
+**Setup sequence (forms-only — no Reply Portal):**
+1. **Pages project** — Workers & Pages → Create → Pages → Upload assets → drag the WHOLE site folder (must include `functions/`, not just `out/`'s contents — the static export and the Functions directory sit side by side at the project root) → Deploy.
+2. **Secrets** — Project → Settings → Variables and Secrets → add `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` (tick Encrypt on each), optionally `SMTP_FROM`, `CONTACT_EMAIL`, `ORDER_EMAIL`, `WHOLESALE_EMAIL`.
+3. **Redeploy** — Deployments → latest → ⋯ → Retry deployment. **Secrets only apply to deployments made after they're added** — same rule as D1/R2 bindings below.
+4. **Compatibility flag** — Project → Settings → Functions → add `nodejs_compat` under Compatibility Flags, for **both** Production and Preview. This is dashboard-only, same as everything else here: a `wrangler.toml` dropped into the uploaded ZIP is **not** read by a direct/drag-and-drop upload — that file only takes effect via the `wrangler` CLI or a Git-connected Pages project, neither of which this workflow uses. Without this flag set in the dashboard, `cloudflare:sockets` isn't available and the mailer silently can't connect.
+
+**Additional steps when Section P = Yes (Reply Portal):**
+5. **KV namespace** — Storage & Databases → KV → Create → name `[site-slug]-kv`.
+6. **Binding** — Project → Settings → Bindings → Add → KV namespace → variable name **`REPLY_KV`** (fixed name, matches the code exactly — see `references/reply-portal.md` §2). Also add the `ADMIN_PASSCODE` secret alongside the SMTP ones in step 2.
+7. **Redeploy again** — same mandatory-redeploy rule.
+
+This can share the same Pages project as a D1/R2 backend (Section O) — a site can have both a CMS (D1/R2) and a Reply Portal (KV) simultaneously; they use different bindings, and **different UI paths on purpose** — the Reply Portal owns `/admin`, the CMS owns `/cms` (`references/backend.md`). Both are Next.js/static-exported into the same output root, so distinct paths aren't a style choice here, they're what stops one from overwriting the other's files at build time.
+
+Deploy config specific to this: `_headers` → `/admin/*` gets `Cache-Control: no-store`; `robots.txt` → `Disallow: /admin/`. CSP `connect-src 'self'` covers the same-origin Functions calls — no third-party form API origin needed now that Web3Forms is retired.
+
+---
+
 ## Backend-enabled sites (only when backend = Yes — see references/backend.md)
 
 Backend sites add D1 + R2 + Pages Functions to the SAME Pages project — still 100% Cloudflare, still dashboard-only (no command line). The full click-by-click guide is generated per build as `CLOUDFLARE-SETUP.md`; this is the canonical sequence it follows:
@@ -238,17 +258,17 @@ Backend sites add D1 + R2 + Pages Functions to the SAME Pages project — still 
 1. **D1 database** — Storage & Databases → D1 → Create → name `[site-slug]-db`.
 2. **Tables** — open the DB → Console → paste all of `schema.sql` → Execute.
 3. **R2 bucket** — R2 Object Storage → Create bucket → name `[site-slug]-media`.
-4. **Pages project** — Workers & Pages → Create → Pages → Upload assets → drag the WHOLE site folder (includes `functions/` + `admin/`) → Deploy.
+4. **Pages project** — Workers & Pages → Create → Pages → Upload assets → drag the WHOLE site folder (includes `functions/` + `cms/`) → Deploy.
 5. **Bindings** — project → Settings → Bindings → Add: D1 with variable name `DB`; R2 with variable name `MEDIA` (names must match the code exactly).
 6. **Secrets** — Settings → Variables and Secrets → add `SESSION_SECRET` and `ADMIN_SETUP_TOKEN`, both Encrypted.
 7. **Redeploy** — Deployments → latest → ⋯ → Retry deployment (bindings/secrets only apply to deployments made after they're added).
-8. **Admin login** — visit `[site-slug].pages.dev/admin/setup?token=YOUR_ADMIN_SETUP_TOKEN` once → set email + password → it self-disables.
+8. **Admin login** — visit `[site-slug].pages.dev/cms/setup?token=YOUR_ADMIN_SETUP_TOKEN` once → set email + password → it self-disables.
 9. **Custom domain** — Settings → Custom domains → add `[domain]`.
 
 Backend-specific deploy config:
-- `_headers`: add `/admin/*` → `Cache-Control: no-store` (never cache the dashboard); keep functions responses uncached. CSP `connect-src 'self'` for the same-origin API.
-- `robots.txt`: `Disallow: /admin/` and `Disallow: /api/`.
+- `_headers`: add `/cms/*` → `Cache-Control: no-store` (never cache the dashboard); keep functions responses uncached. CSP `connect-src 'self'` for the same-origin API.
+- `robots.txt`: `Disallow: /cms/` and `Disallow: /api/`. (**Not** `/admin/` — that path belongs to the Reply Portal now, see "Forms & Reply Portal" above. The two are deliberately distinct so a site with both never has one overwrite the other's output.)
 - Future updates: re-upload the site folder (Deployments → Create new deployment). D1, R2, bindings, secrets, and all client content persist across redeploys.
-- Content (posts/products) is added via `/admin → Import` of a `*-import.json` file, NOT by editing HTML.
+- Content (posts/products) is added via `/cms → Import` of a `*-import.json` file, NOT by editing HTML.
 
 Note: bindings take effect only on the deployment made AFTER they're added — the redeploy (step 7) is mandatory, not optional.

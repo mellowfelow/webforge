@@ -20,7 +20,7 @@ export const SITE = {
   gscCode: '…', indexNowKey: '…',
   payments: ['…'],
 }
-export const FORMS = { provider: 'web3forms', web3formsKey: '…', resendFrom: '', turnstileSiteKey: '' }
+export const FORMS = { provider: 'smtp', smtpFrom: '…', resendFrom: '', turnstileSiteKey: '', destinations: { contact: '', order: '', wholesale: '' } }
 export const CHAT   = { channels: [{ type: 'whatsapp', value: '61400000000' }] }
 export const CATEGORIES = [{ slug, name, kw, desc }]
 export const PRODUCTS   = [{ slug, name, price, cat, badge, short, desc, images: [] }]
@@ -104,7 +104,7 @@ export default function sitemap({ id }) {
   return pages.map(r => ({ url: `${SITE.url}${r}`, lastModified: now }))
 }
 ```
-Next emits `/sitemap.xml` as the index automatically when `generateSitemaps` is used, and `/sitemap/[id].xml` for each child. **Exclude every `noindex` page.** On static export, confirm the child files exist in `out/` (crosscheck item 36). Robots references the index at `/sitemap.xml`.
+Next emits `/sitemap.xml` as the index automatically when `generateSitemaps` is used, and `/sitemap/[id].xml` for each child. **Exclude every `noindex` page.** On static export, confirm the child files exist in `out/` (crosscheck item 41). Robots references the index at `/sitemap.xml`.
 
 ## Static export vs Vercel
 

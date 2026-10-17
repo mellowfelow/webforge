@@ -1,11 +1,11 @@
 ---
 name: webforge
-description: Complete React/Next.js ecommerce website factory that builds, updates, deploys and optimizes sites on Vercel (default, via GitHub) or Cloudflare Pages (via ZIP), with an OPTIONAL client backend (CMS, Cloudflare-only). Use whenever the user mentions building a website, new site, updating an existing site, adding pages or products, running an SEO audit, AI visibility audit, technical audit, agent-ready audit, deploy check, connecting a domain, or managing a client login/backend/dashboard/CMS. Triggers include "build me a site", "new client", "new project", "add", "update", "change", "fix", "audit", "check SEO", "ai visibility", "agent ready", "isitagentready", "llms.txt", "deploy check", "keyword cluster", "keyword map", "PROJECT.md", "CLAUDE.md", "vercel", "cloudflare pages", "connect domain", "product images", "live chat", "backend", "client dashboard", "CMS", or any reference to a managed client site. Always read this skill before doing anything.
+description: Complete React/Next.js ecommerce website factory that builds, updates, deploys and optimizes sites on Vercel (default, via GitHub) or Cloudflare Pages (via ZIP), with a reply portal + order dashboard ON BY DEFAULT on both targets (skip only if the client declines), and an OPTIONAL client backend (CMS, Cloudflare-only). Uses SMTP as the only email transport (nodemailer on Vercel, a raw-socket SMTP client via Cloudflare Pages Functions on Cloudflare) — Web3Forms is retired. Use whenever the user mentions building a website, new site, updating an existing site, adding pages or products, running an SEO audit, AI visibility audit, technical audit, agent-ready audit, deploy check, connecting a domain, or managing a client login/backend/dashboard/CMS/reply portal. Triggers include "build me a site", "new client", "new project", "add", "update", "change", "fix", "audit", "check SEO", "ai visibility", "agent ready", "isitagentready", "llms.txt", "deploy check", "keyword cluster", "keyword map", "PROJECT.md", "CLAUDE.md", "vercel", "cloudflare pages", "connect domain", "product images", "live chat", "backend", "client dashboard", "CMS", "reply portal", "admin portal", "order dashboard", "whatsapp reply", "payment details", or any reference to a managed client site. Always read this skill before doing anything.
 ---
 
-# WebForge v9.1 — React/Next.js Ecommerce Site Factory (dual-target: Vercel + Cloudflare, agent-ready + AA-accessible + design-polished by default)
+# WebForge v11.1 — React/Next.js Ecommerce Site Factory (dual-target: Vercel + Cloudflare, agent-ready + AA-accessible + design-polished by default)
 
-## One prompt in. A fully built React/Next.js store out — mobile-first, technically perfect, SEO + AI-visibility optimized, agent-ready, deployable to Vercel (default, via GitHub) or Cloudflare Pages (via ZIP) — with an optional client-editable backend when a site needs one.
+## One prompt in. A fully built React/Next.js store out — mobile-first, technically perfect, SEO + AI-visibility optimized, agent-ready, deployable to Vercel (default, via GitHub) or Cloudflare Pages (via ZIP) — with a reply portal + order dashboard on by default on both targets.
 
 You build production-ready Cloudflare Pages ecommerce websites that are fully optimized from day one — **mobile-first and fully responsive**, technically perfect, ranking-ready on all search engines, visible to AI assistants, and **agent-ready from day one**. Every site follows a proven structure. Do not improvise — follow this skill exactly.
 
@@ -15,11 +15,15 @@ This skill is self-contained. All SEO, technical SEO, AI visibility, agent-ready
 
 **v9 adds the full Technical-SEO layer as a baked-in default:** split + image sitemaps, duplicate-content detection, an inverse-noindex audit, AVIF output, full **WCAG 2.2 AA accessibility** (`references/accessibility.md`), and a measured **Core Web Vitals / Lighthouse 95+ gate** (`references/performance.md`). Audit mode (MODE 4) now runs in two tiers — **static** (from the ZIP, gates the build) and **live** (post-deploy, new AUDIT F for performance + accessibility). Image optimisation is target-conditional: Vercel uses `next/image` + AVIF; Cloudflare keeps the pre-optimised pipeline, now emitting AVIF too.
 
-**v9.1 adds the Visual Design Quality layer as a build gate** (`references/design-quality.md`): grid/tile uniformity, deliberate hero composition, section rhythm + alignment consistency, cohesive depth/colour/type, tasteful reduced-motion-safe micro-interactions, and a hard **no-bare-section** rule. Technical correctness alone no longer ships — a build must also be clean and genuinely attractive (crosscheck item 41).
+**v9.1 adds the Visual Design Quality layer as a build gate** (`references/design-quality.md`): grid/tile uniformity, deliberate hero composition, section rhythm + alignment consistency, cohesive depth/colour/type, tasteful reduced-motion-safe micro-interactions, and a hard **no-bare-section** rule. Technical correctness alone no longer ships — a build must also be clean and genuinely attractive (crosscheck item 46).
 
-**v5 (retained) — the optional client backend module.** Not every site uses it — it is a **requirement-gated, opt-in** addition decided per project during intake (Intake Section O). When enabled, the client gets a login at `/admin` where they manage content, blog posts, products, media, and SEO details — all stored in Cloudflare D1 + R2, all on Cloudflare Pages, no external host. Full detail in `references/backend.md`.
+**v5 (retained) — the optional client backend module.** Not every site uses it — it is a **requirement-gated, opt-in** addition decided per project during intake (Intake Section O). When enabled, the client gets a login at `/cms` where they manage content, blog posts, products, media, and SEO details — all stored in Cloudflare D1 + R2, all on Cloudflare Pages, no external host. **`/cms`, not `/admin`** — `/admin` belongs to the Reply Portal (Section P, default-Yes on every site now), and the two must never collide. Full detail in `references/backend.md`.
 
-**v4 (retained) — the hard-won production lessons** from live client builds: the exact Web3Forms CORS method, mobile-first overflow rules, flexible product-image handling, the JSON-LD validity traps, and three first-class audit modes (Technical, SEO, AI-Visibility) that now include Agent-Ready as a fourth sub-audit.
+**v11.1 adds a live Rich Results Test pass to AUDIT F.** The pre-ship crosscheck's JSON-LD validity check only confirms schema *parses* — it can't confirm Google actually treats it as rich-result-eligible, since a block can be valid JSON and still miss a field Google requires for eligibility specifically. AUDIT F now runs Google's Rich Results Test live (via the in-app browser, no scriptable API for this tool) against one representative URL per distinct schema type shipped. See "AUDIT F" below and `references/seo.md` § JSON-LD validity.
+
+**v11 makes the Reply Portal the default on every site, on both deploy targets (Intake Section P — default Yes, skip only if declined).** Orders and enquiries are stored in Upstash Redis (Vercel) or KV (Cloudflare, via Pages Functions), a passcode-gated admin dashboard appears at `/admin/` (hub, orders list, enquiry list, payment-details composer, reply-enquiry composer), payment details are pasted once and auto-split into individually-copyable fields (`parsePaymentDetail` — fits any country/payment rail with zero code changes), WhatsApp pre-filled reply links mirror the same fields, and a public `/order/payment-details/` page lets the customer tap-to-copy each one. Both WhatsApp and email checkout channels save to the dashboard — WhatsApp checkout is wired end-to-end, never a bare chat link. **Web3Forms is deleted entirely; SMTP is the only default form/email transport, on both targets** (Cloudflare via a raw-socket SMTP client in a Pages Function, since its runtime has no nodemailer support). All emails are the **light** shell (white body, dark brand header band, brand as accent only — never a dark body, which Zoho/Gmail dark mode force-invert); every brand/location/currency/payment specific comes from one `SITE.reply` config block. See Section P, "Reply Portal system", `references/forms.md` (email) and `references/reply-portal.md` (storage/auth/admin/WhatsApp, both targets).
+
+**v4 (retained) — the hard-won production lessons** from live client builds: mobile-first overflow rules, flexible product-image handling, the JSON-LD validity traps, and three first-class audit modes (Technical, SEO, AI-Visibility) that now include Agent-Ready as a fourth sub-audit. (The Web3Forms CORS method this section used to document is retired — see "Forms" below.)
 
 ---
 
@@ -28,10 +32,10 @@ This skill is self-contained. All SEO, technical SEO, AI visibility, agent-ready
 These are absolute. They come from real builds that broke and were fixed. Never regress them.
 
 1. **Mobile-first, fully responsive.** Design and verify mobile FIRST, then scale up. Zero horizontal scrolling on any viewport. See "Mobile-first standards" below — every build and every audit checks this.
-2. **Forms: provider-pluggable, but Web3Forms uses the exact CORS method only.** One constant in `src/config/site.js` selects the provider. For `web3forms` (default, both targets): `fetch` with `body: new FormData(form)` + headers `{ 'Accept': 'application/json' }` ONLY. No `Content-Type`. No `action`. No `redirect` hidden field. JS redirects to the on-domain thank-you page. See "Forms".
+2. **Forms: SMTP only, on both deploy targets. Web3Forms is retired.** One constant in `src/config/site.js` selects the provider (`smtp` default, or opt-in `resend` on Vercel with a verified domain). `lib/mailer.js` (Vercel, nodemailer) or `functions/_shared/mailer.js` (Cloudflare, raw-socket SMTP via `cloudflare:sockets`) — same `SMTP_HOST/PORT/USER/PASS` + `SMTP_FROM` env vars either way, lazy singleton, returns `{sent:false}` when unconfigured (never crashes). See "Forms — SMTP only, both targets".
 3. **Exactly one `<h1>` per page.** Hero sliders: `<h1>` on slide 1 only; other slides are styled `<div>`/`<p>`.
 4. **Validate every JSON-LD block with a JSON parser before shipping.** Broken schema is worse than none. No bare `Product` entities on non-product pages.
-5. **Never fabricate brand facts.** Never invent founders, awards, partnerships, or revenue for AI visibility. Truthful signals only.
+5. **Never fabricate brand facts — but always preserve the client's REAL ones.** Do not INVENT founders, awards, partnerships, revenue, statistics or reviews that do not exist. But real content the client provides — or that already exists on the site you are migrating (reviews, ratings, awards, testimonials, named clients, milestones) — is legitimate: carry it over faithfully and record its source in `docs/PROJECT.md`. This rule bans invention, never real content. Migrating a site with real reviews must PRESERVE those reviews, not strip them.
 6. **Always run the pre-ship crosscheck** (see "Pre-ship crosscheck") before producing any ZIP. Analyze → fix → re-analyze.
 7. **Agent-Ready files are mandatory on every site.** The full set of agent-ready files (Sections A–N in "Agent-Ready Standards") ships on every build regardless of client request, on both deploy targets. See "Agent-Ready Standards" and the pre-ship crosscheck.
 8. **Framework is React + Next.js (App Router). Never hand-roll a prerenderer.** One codebase, two targets: `TARGET=static` → `output: 'export'` for Cloudflare ZIP upload; default → Vercel with real API routes. See "Deploy targets" and "MODE 3".
@@ -58,9 +62,10 @@ Every site is built from ONE codebase that targets both platforms. The target is
 | Delivery | GitHub repo → auto-deploy on push | `[site-slug]-deploy.zip` → manual upload |
 | Build | `npm run build` (Next.js) | `npm run build:static` → `out/` → zipped |
 | Headers/redirects | `vercel.json` (generated) | `_headers` + `_redirects` (generated) |
-| Forms | `web3forms` (default) or `resend` via `/api/contact` | `web3forms` only |
-| API routes | **Yes** — real endpoints | No (static only) |
+| Forms / email | `smtp` (default) via `/api/contact`, or opt-in `resend` | `smtp` via Pages Functions (`functions/api/contact.js`) — same env vars, raw-socket client instead of nodemailer |
+| API routes | **Yes** — real Next.js API endpoints | No (static export) — but **Pages Functions** (`functions/`) run alongside it, see below |
 | Agent ceiling | Higher — live MCP server, real product/search APIs, real ACP/UCP endpoints | ~79 (isitagentready free-plan cap — accepted, do not chase) |
+| Reply Portal | **Yes** — default (Section P), Upstash Redis, passcode-gated `/admin/` | **Yes** — default (Section P), Cloudflare KV via Pages Functions, passcode-gated `/admin/` |
 | Client backend | Not supported (see below) | **Yes** — D1 + R2 + Pages Functions |
 
 **Target and backend are TWO INDEPENDENT questions.** Section M picks the platform; Section O picks the backend (default **No**). Never conflate them — all four combinations are asked, three are buildable:
@@ -68,8 +73,8 @@ Every site is built from ONE codebase that targets both platforms. The target is
 | Target | Backend | Supported? | Use when |
 |---|---|---|---|
 | **Vercel** | No | ✅ **default** | Most new sites. GitHub workflow, real agent endpoints, `resend` available once a domain is live. |
-| **Cloudflare** | No | ✅ **fully supported** | Client is already on Cloudflare; you prefer ZIP upload; no Git workflow wanted; existing sites you maintain. A pure static Next.js export — no D1, no R2, no Functions, no dashboard setup. |
-| **Cloudflare** | Yes | ✅ | Client needs to edit content themselves at `/admin`. Adds D1 + R2 + Pages Functions. |
+| **Cloudflare** | No | ✅ **fully supported** | Client is already on Cloudflare; you prefer ZIP upload; no Git workflow wanted; existing sites you maintain. A static Next.js export — no D1, no R2, no CMS dashboard. (It does ship `functions/` for forms + the Reply Portal, Section P — that's a separate, always-present mechanism, not the opt-in CMS backend. See "Deploy targets" table above.) |
+| **Cloudflare** | Yes | ✅ | Client needs to edit content themselves at `/cms`. Adds D1 + R2 + Pages Functions. |
 | **Vercel** | Yes | ❌ | Not supported. The backend is built on D1 + R2 + Pages Functions. Do not improvise a port. If the client needs both, the target is Cloudflare. |
 
 > **Cloudflare does NOT imply a backend.** "Cloudflare Pages" and "client CMS" are unrelated choices. A Cloudflare site with backend = No is a plain static site: `npm run zip` → upload → done. It is a first-class path, not a fallback.
@@ -80,7 +85,7 @@ Every site is built from ONE codebase that targets both platforms. The target is
 - **Vercel is the default**, but it is a default, not a requirement — if the user says Cloudflare, build Cloudflare without argument or re-litigation.
 - Cloudflare Pages remains fully supported for existing sites, for ZIP-upload workflows, and for any site needing the client backend.
 - **The backend module is Cloudflare-only.** If backend = Yes, the target is Cloudflare Pages — state this plainly at intake rather than half-porting it.
-- **Cloudflare is deliberately static.** Its ~79 agent score is a free-plan ceiling, not a build defect. Do not add Pages Functions purely to chase agent points.
+- **Cloudflare is deliberately static for pages.** Its ~79 agent score is a free-plan ceiling, not a build defect. `functions/` exists for forms + the Reply Portal (real correctness requirements) and, when backend = Yes, the CMS — never add it purely to chase agent-readiness points.
 - **Both targets ship the full static agent-ready file set (A–N).** Vercel additionally ships live endpoints (Pass 2).
 - Both targets use `trailingSlash: true`. Every route is a directory with `index.html`.
 
@@ -97,11 +102,11 @@ Action: Intake (includes **Section M — deploy target** and **Section O — Cli
 **Mode 2 — Site Update**
 Trigger: existing site + "add", "update", "change", "new page", "new product", "new blog post", "fix".
 Action: Read PROJECT.md from Project context. Make targeted changes, propagate ripple effects (sitemap, internal links, schema counts, llms.txt, agent-ready files). Run full-site audit. Deliver complete deploy-ready ZIP.
-**Backend sites:** if PROJECT.md shows backend = Yes, new blog posts / products are delivered as **import files** for the client to upload in `/admin → Import` — NOT hardcoded into HTML.
+**Backend sites:** if PROJECT.md shows backend = Yes, new blog posts / products are delivered as **import files** for the client to upload in `/cms → Import` — NOT hardcoded into HTML.
 
 **Mode 3 — Full Build**
 Trigger: user confirms intake / says "build the site".
-Action: Build every file in one pass — mobile-first + technical + SEO + AI visibility + **agent-ready** + forms + deploy config. **If backend = Yes:** also generate the `functions/`, `admin/`, `cms-manifest.json`, `schema.sql`, and `CLOUDFLARE-SETUP.md`. Pre-ship crosscheck (including agent-ready checklist). Output single deployable ZIP.
+Action: Build every file in one pass — mobile-first + technical + SEO + AI visibility + **agent-ready** + forms + **the Reply Portal** (default on every build now, both targets — same weight as the shop pages: not indexed, but no sales without it) + deploy config. **If backend = Yes:** also generate the `functions/`, `cms/`, `cms-manifest.json`, `schema.sql`, and `CLOUDFLARE-SETUP.md`. Pre-ship crosscheck (including the Reply Portal crosscheck and the agent-ready checklist). Output single deployable ZIP.
 
 **Mode 4 — Audit modes (Technical / SEO / AI-Visibility / Agent-Ready) + Auto-Fix**
 Trigger: "audit", "check SEO", "AI visibility check", "technical audit", "agent ready", "isitagentready", "something's broken", "fix my SEO", "deploy check", or user uploads a site ZIP.
@@ -126,7 +131,7 @@ Read `references/intake.md` for the full intake form. Collect ALL of:
 - **B — Contact & Business:** Email, phone, WhatsApp, country, currency, VAT display, **business location/region (for AI visibility HQ signal)**
 - **C — Order Rules:** Min order, free shipping threshold, flat shipping fee, crypto discount
 - **D — Menu:** Which pages to include
-- **E — Checkout & Payment:** WhatsApp checkout Y/N, email/order-form checkout Y/N, payment methods
+- **E — Checkout & Payment:** WhatsApp checkout Y/N, email/order-form checkout Y/N (independent, plain Yes/No each — but whichever is Yes gets the full form: required email, phone, address, payment method, and an unconditional confirmation email, never a shortcut version — see "Reply Portal system" → WhatsApp), payment methods
 - **F — Live Chat (chat hub — multiple channels):** Pick any combination. Two kinds, treated differently:
   - **Link channels** (free, zero JS, no CSP impact, no performance cost): WhatsApp (number), Telegram (@handle or t.me link), Facebook Messenger (page ID), Signal (link), Email, Phone.
   - **Widget channels** (inject a third-party script — costs performance, needs a CSP entry, one only): Tawk.to (property/widget ID), Crisp (website ID), JivoChat (widget ID).
@@ -137,7 +142,10 @@ Read `references/intake.md` for the full intake form. Collect ALL of:
 - **I — Shop Structure:** Structure type A/B/C/D, categories, subcategories
 - **J — Keywords:** Primary keyword, 10-20 secondary keywords
 - **K — Initial Products:** featured products with name, price, category, description, badge, **image(s)**. Ask for: **2000px+ on a plain white background, product filling the frame, consistent angle and lighting.** Explain why: white-background photos blend seamlessly into the white product frame and need no processing. Photos with their own backgrounds still work but will letterbox. Multiple images per product supported (first is primary). Images optional — placeholders are generated if absent.
-- **L — Forms:** provider = `web3forms` (default, both targets, needs only an email address) or `resend` (Vercel only, first-party sending, **requires a verified domain** — not available while the domain is pending). Collect: Web3Forms access key (or pending), contact/order/wholesale destination emails, and optionally a Cloudflare Turnstile site key for spam protection.
+- **L — Forms / email transport:** Two providers — **Web3Forms is retired:**
+  - `smtp` — **default, both targets.** Branded HTML emails. Vercel: nodemailer (`lib/mailer.js`). Cloudflare: a raw-socket SMTP client run from a Pages Function (`functions/_shared/mailer.js`) — same env vars, same behaviour. Requires `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and optionally `SMTP_FROM`. Without them, `sendMail()` returns `{sent:false}` — site still works via WhatsApp/chat fallback.
+  - `resend` — Vercel only, opt-in, first-party sending, **requires a verified domain**.
+  Collect: destination emails (contact/order/wholesale — each optionally its own env var, `CONTACT_EMAIL`/`ORDER_EMAIL`/`WHOLESALE_EMAIL`, falling back to a config default), and the SMTP credentials or "pending". Optionally: Cloudflare Turnstile site key for spam protection. See `references/forms.md`.
 - **M — Hosting / deploy target (ask plainly, both are first-class):** **Vercel (default)** — GitHub repo, auto-deploy on push, real API routes, higher agent ceiling, `resend` available once a domain is live. **Cloudflare Pages** — ZIP upload, no Git needed, static, ~79 agent cap (free-plan ceiling, not a defect). **Choosing Cloudflare does NOT mean adding a backend** — that is a separate question (Section O) and defaults to No. Only the reverse is forced: backend = Yes → Cloudflare. See "Deploy targets" for the full matrix.
 - **N — Brand authority facts (for AI visibility, truthful only):** founding year, founding location/HQ, what makes them different, milestones, geographic footprint, real named individuals/awards/partners IF the client actually has them (never invented)
 - **O — Client Backend (OPTIONAL, the opt-in gate):** Backend Yes/No. If **No** → build a pure static site (skip all backend work). If **Yes** → collect: which collections the client manages (pages text, blog, products, custom types), admin user email(s), whether they edit SEO details (focus keyword + meta + SEO Score panel), media uploads Y/N, and edits-go-live mode (instant vs publish). Full sub-form in `references/intake.md` → Section O.
@@ -145,6 +153,27 @@ Read `references/intake.md` for the full intake form. Collect ALL of:
 > **Gate rule:** Section O is asked for every new site, but a backend is added ONLY when the user explicitly says Yes. **Default is No.** A "No" here is not a lesser build — most sites should not have a backend. It is only worth it when the client genuinely wants to edit content themselves without you.
 >
 > **Do not infer a backend from the target.** Cloudflare + No is a normal, fully supported combination (see "Deploy targets"). Never assume that a Cloudflare site wants a CMS.
+
+- **P — Reply Portal (default Yes, both targets — skip only if declined):** Reply Portal Yes/No. **Default Yes.** When **Yes**, the site gets:
+  - Order/enquiry store — Upstash Redis on Vercel, Cloudflare KV via Pages Functions on Cloudflare (`references/reply-portal.md` §2)
+  - Passcode-gated admin dashboard: `/admin` hub (live counts) + `/admin/orders/` + `/admin/enquiries/`
+  - Payment-details composer at `/admin/send-payment-email/` — paste the real detail once, `parsePaymentDetail` auto-splits it into individually-copyable fields (any country, any payment rail, zero code changes) + WhatsApp reply panel
+  - Enquiry-reply composer at `/admin/reply-enquiry/`
+  - A public `/order/payment-details/` page where the customer taps each field to copy it, and `/order/confirm-payment/` to upload a payment screenshot
+  - WhatsApp channel tagging on orders — both checkout channels (WA + email) save to the dashboard; WhatsApp checkout mints and saves a real order, never a bare chat link
+  - Payment terms displayed consistently: `paymentTermsLines()` → WA text, email HTML, and the composer preview always match
+  - Order notification email to admin includes "Reply in Dashboard →" CTA; confirmation to customer says "watch for payment-details email" — NOT premature payment instructions
+
+  **Collect when Yes:**
+  - `ADMIN_PASSCODE` — server-only, gated via `X-Admin-Passcode` header; never exposed to the browser
+  - **Vercel:** Upstash Redis REST URL + Token (Vercel Storage tab → "Create Database"; the client checks 5 common prefix variants automatically). **Cloudflare:** a KV namespace bound in Pages → Settings → Bindings (`references/cloudflare.md`).
+  - WhatsApp number (for WA checkout + admin WA reply panel)
+
+  **Mandatory theme + light-email rule (applies even when portal = No for emails):** all outbound HTML emails are **light** (white card, dark brand header band, near-black text, brand as accent only) — never a dark-background body, which Zoho/Gmail dark mode force-invert (see `references/forms.md`) — **this applies on Cloudflare too.** Brand/location/currency/payment specifics come from the one `SITE.reply` block in `config/site.js`; the accent = `reply.brand.primary`, header band = `reply.brand.headerDark`. Admin pages read their accent from the same config so the portal follows the site theme.
+
+  **Section P requires:** `smtp` form provider (or `resend` on Vercel). No longer requires Vercel — Cloudflare runs it via Pages Functions.
+
+  > Gate rule: Section P is asked for every site, either target. **Default is Yes** — build it unless the client explicitly declines. Skip only for sites genuinely without orders/enquiries to manage.
 
 ### After intake is complete
 
@@ -154,7 +183,7 @@ Read `references/intake.md` for the full intake form. Collect ALL of:
 ```
 Goes into: homepage hero subtext, homepage "About [Brand]" authority section, about page opening, Organization/Store schema `description`, FAQ "What is [Brand]?" answer, llms.txt, and `mcp/server-card.json` description.
 
-**Step 2 — Form provider + deploy target confirmation.** Default: Vercel + Web3Forms. State the consequences plainly: Web3Forms needs only an email address and works on both targets; `resend` gives first-party sending but needs a verified domain (unavailable while the domain is pending — start on Web3Forms and switch one constant later). If backend = Yes, target is Cloudflare Pages. Confirm with user.
+**Step 2 — Form provider + deploy target + reply portal confirmation.** Defaults: Vercel + SMTP + Reply Portal **Yes**. State the consequences plainly: SMTP gives branded first-party emails (Zoho/Gmail/any SMTP) on either target — needs credentials in the platform dashboard, site still works via WhatsApp/chat fallback without them; `resend` gives first-party sending on Vercel but needs a verified domain. Reply Portal is on by default on both targets now — it adds `/admin/` order/enquiry dashboard + the SMTP requirement; only turn it off if the client says they don't want it. If backend = Yes, target is Cloudflare Pages. Confirm with user.
 
 **Step 3 — Keyword strategy.** Cluster primary + secondary keywords, assign by intent. Show assignment, wait for confirmation.
 
@@ -245,15 +274,69 @@ Run the complete **Pre-ship crosscheck** across the ENTIRE site, including the a
 │   │   ├── about|contact|wholesale|faq|cart|order/page.jsx
 │   │   ├── shipping|refund|privacy|terms/page.jsx
 │   │   ├── thank-you-contact|thank-you-order|thank-you-wholesale/page.jsx
+│   │   ├── checkout/page.jsx       ← order number minted client-side; WA + email both save to store
+│   │   ├── thank-you-order/page.jsx ← "watch for payment-details email" (NO premature instructions)
 │   │   ├── not-found.jsx
 │   │   ├── sitemap.js         ← Next.js native, reads SITE.domain
-│   │   ├── robots.js          ← Next.js native, reads SITE.domain
-│   │   └── api/               ← VERCEL ONLY (omitted from static export)
-│   │       └── contact/route.js   ← resend provider
+│   │   ├── robots.js          ← Next.js native, reads SITE.domain; disallows /admin/ (+ /cms/ too if backend = Yes)
+│   │   ├── admin/             ← REPLY PORTAL (Section P — default Yes)
+│   │   │   ├── layout.jsx             ← PasscodeGate wrapper, AdminNav, robots:noindex
+│   │   │   ├── page.jsx               ← hub: live order/enquiry counts, recent lists
+│   │   │   ├── orders/page.jsx        ← list: status/channel badge, delete
+│   │   │   ├── orders/[id]/page.jsx   ← detail: customer/payment/items, send-payment-details link
+│   │   │   ├── enquiries/page.jsx     ← list: filter pills (all/contact/wholesale/new/replied)
+│   │   │   ├── enquiries/[id]/page.jsx ← detail: contact/message, reply link
+│   │   │   ├── send-payment-email/page.jsx  ← paste detail → parsePaymentDetail preview → send; WA panel
+│   │   │   └── reply-enquiry/page.jsx ← compose reply with live preview
+│   │   ├── order/
+│   │   │   ├── payment-details/page.jsx  ← public, ?id= — parsed fields as CopyField, tap to copy
+│   │   │   └── confirm-payment/page.jsx  ← public, ?id= — screenshot upload
+│   │   └── api/               ← VERCEL ONLY (omitted from static export — Cloudflare mirrors this via functions/, see below)
+│   │       ├── contact/route.js       ← ONE handler for order + contact + wholesale (by `formName`) — checkout's
+│   │       │                            "Place order" AND "Order via WhatsApp" buttons both POST here; saves the
+│   │       │                            order/enquiry, sends the shop notification, and — for orders, EITHER
+│   │       │                            channel, unconditionally — orderConfirmationEmail() to the customer
+│   │       ├── order/payment-details/route.js ← GET parsed fields for the public copy page
+│   │       ├── order/confirm-payment/route.js ← POST screenshot → email + markPaymentConfirmed
+│   │       └── admin/                 ← REPLY PORTAL API (Section P = Yes)
+│   │           ├── orders/route.js          ← GET list
+│   │           ├── orders/[id]/route.js     ← GET, DELETE, PATCH (mark sent)
+│   │           ├── enquiries/route.js       ← GET list
+│   │           ├── enquiries/[id]/route.js  ← GET, DELETE
+│   │           ├── reply-enquiry/route.js   ← POST send reply email
+│   │           └── send-payment-email/route.js ← POST send payment details email
 │   ├── components/
 │   │   ├── Nav.jsx · Footer.jsx · ChatHub.jsx · ProductCard.jsx
 │   │   ├── QtyStepper.jsx · WebForm.jsx · Breadcrumbs.jsx
+│   │   ├── CopyField.jsx        ← one payment-detail row, click-to-copy, 2s "copied" state
+│   │   └── admin/               ← REPLY PORTAL components (Section P = Yes)
+│   │       ├── PasscodeGate.jsx        ← passcode entry gate (shared by all /admin/* pages)
+│   │       ├── AdminNav.jsx            ← Dashboard · Orders · Enquiries nav + sign out
+│   │       ├── AdminPasscodeContext.jsx ← passcode context, avoids prop-drilling into every page
+│   │       ├── StatusBadge.jsx         ← order/enquiry status pill
+│   │       └── WhatsAppSendPanel.jsx   ← pre-filled WA link + copy-message fallback
+│   ├── lib/                     ← REPLY PORTAL lib (Section P = Yes)
+│   │   ├── mailer.js            ← SMTP nodemailer lazy singleton; {sent:false} when unconfigured
+│   │   ├── redis.js             ← @upstash/redis client; checks 5 credential prefix variants
+│   │   ├── orderStore.js        ← StoredOrder (channel:'whatsapp'|'email'); one hash, in-memory sort
+│   │   ├── enquiryStore.js      ← StoredEnquiry (type, status:'new'|'replied'); same pattern
+│   │   ├── adminAuth.js         ← X-Admin-Passcode header check (server-only)
+│   │   ├── order.js             ← parsePaymentDetail(), money(), paymentMethodParts(), paymentTermsLines/Html()
+│   │   └── whatsapp.js          ← waLink, waLinkTo, waOrderLink, waPaymentDetailsMessage, WA_HEADER
+│   ├── utils/emailTemplates.js  ← shell/field/callout/button primitives + one function per email type
 │   └── styles/globals.css
+├── functions/                   ← CLOUDFLARE ONLY — Pages Functions, mirrors src/app/api/** above
+│   ├── _shared/                 ← redis.js has no Cloudflare equivalent (KV used directly); orderStore.js,
+│   │   │                          enquiryStore.js, adminAuth.js, mailer.js (raw-socket SMTP), order.js,
+│   │   │                          emailTemplate.js, config.js — same logic as src/lib/* above, KV/env-bound
+│   ├── api/                     ← same paths as src/app/api/** — contact.js (order+contact+wholesale, unified,
+│   │   │                          same as Vercel), order/payment-details.js, order/confirm-payment.js,
+│   │   │                          admin/orders.js(+[id]), admin/enquiries.js(+[id]),
+│   │   │                          admin/send-payment-email.js, admin/reply-enquiry.js
+│   └── _middleware.js           ← CORS headers for the admin API surface
+                                    (NO wrangler.toml — direct/drag-and-drop ZIP upload never reads it;
+                                     KV binding + nodejs_compat flag are set in the dashboard instead, see
+                                     references/cloudflare.md → "Forms & Reply Portal")
 ├── public/
 │   ├── images/                ← WebP, produced by scripts/images.mjs
 │   ├── llms.txt               ← GENERATED
@@ -365,7 +448,7 @@ Always: correct `width`/`height` (or `next/image` intrinsic sizing) matching the
 - Multi-column layouts collapse: 4-col→2-col→1-col, order/checkout two-column→single at ≤900px.
 - Tap targets ≥44px; nav menu collapses to hamburger; mega-dropdown hidden on mobile.
 - No fixed pixel widths that exceed the viewport; tables get `overflow-x:auto` wrappers.
-- **Backend = Yes:** the `/admin` dashboard is mobile-first too.
+- **Backend = Yes:** the `/cms` dashboard is mobile-first too.
 
 **Technical (every page):**
 - GSC verification meta; IndexNow key meta + `[key].txt` at root.
@@ -375,7 +458,7 @@ Always: correct `width`/`height` (or `next/image` intrinsic sizing) matching the
 - `_headers`: CSP (whitelist form API + chat widget + wss), `Cache-Control` for assets, HTML revalidation. **Agent-Ready Link header on `/*`.** See Agent-Ready Section M.
 - `_redirects`: www→apex and http→https with `301!` FIRST.
 - HTTPS only, no mixed content.
-- **Backend = Yes:** `/admin/*` must NOT be cached (`Cache-Control: no-store`); CSP `connect-src` includes `'self'`.
+- **Backend = Yes:** `/cms/*` must NOT be cached (`Cache-Control: no-store`); CSP `connect-src` includes `'self'`.
 
 **SEO — on-page (every page):**
 - Unique meta title 50-60 chars, keyword near start.
@@ -433,18 +516,20 @@ Always: correct `width`/`height` (or `next/image` intrinsic sizing) matching the
 
 **Forms (the definitive method — full templates in `references/forms.md`):** see "Forms — the definitive method" below. This supersedes any older guidance.
 
+**⭐ Reply Portal (default Yes on every build, both targets — full detail in `references/reply-portal.md`, `references/forms.md`):** this is not an optional add-on like Backend — build it with the same weight as the shop pages. It's not indexed, but it's where every order actually gets fulfilled; a site with a broken checkout has zero sales regardless of how good the SEO is. Generate, every time Section P isn't explicitly declined: the storage layer (`lib/redis.js`/`orderStore.js`/`enquiryStore.js` on Vercel, `functions/_shared/` equivalents on Cloudflare), `lib/adminAuth.js`, `lib/order.js` (`parsePaymentDetail` + the payment-terms/method functions), `lib/whatsapp.js`, `utils/emailTemplates.js`, the full `app/admin/*` dashboard (hub, orders, enquiries, both composers), the public `app/order/payment-details/` + `app/order/confirm-payment/` pages, `components/CopyField.jsx` + `components/admin/*`, and the checkout form itself wired to whichever channel(s) Section E selected — with the mandatory unconditional confirmation email and the WhatsApp greeting rule both intact. See "Reply Portal system" below for the full behavioural spec — this line is the reminder that it's mandatory scaffolding, not prose to skim past.
+
 **Internal linking:** hub & spoke (home → category hubs → product/blog spokes); blog→2-3 products/categories; product→parent category + 3-4 related; no dead ends; descriptive anchors.
 
-**Backend (only when backend = Yes — full detail in `references/backend.md`):** generate the two-layer system — mark every editable zone in the templates with stable `data-cms` keys + sensible defaults; produce `cms-manifest.json`, `functions/`, `admin/`, `schema.sql`, and `CLOUDFLARE-SETUP.md`.
+**Backend (only when backend = Yes — full detail in `references/backend.md`):** generate the two-layer system — mark every editable zone in the templates with stable `data-cms` keys + sensible defaults; produce `cms-manifest.json`, `functions/`, `cms/`, `schema.sql`, and `CLOUDFLARE-SETUP.md`.
 
 ### After build
 1. **Run `npm run images`** and show the contact sheet for approval before shipping.
-2. **Run the pre-ship crosscheck.** Fix everything it flags. Re-run until clean. **Backend = Yes:** also run the backend crosscheck.
+2. **Run the pre-ship crosscheck.** Fix everything it flags. Re-run until clean. **This includes the Reply Portal crosscheck by default now** (Section P = Yes on virtually every build) — it is not conditional the way the backend crosscheck is. **Backend = Yes:** also run the backend crosscheck.
 3. **Deliver per target:**
    - **Vercel:** `git init` + `.gitignore` + `README.md` + `CLAUDE.md`, commit, and output the exact GitHub + Vercel steps (empty repo → remote → push → import → **Framework Preset: Next.js**). If not running with disk access, deliver `[site-slug]-repo.zip` (repo root at the ZIP root, no wrapper folder) + the ZIP handover warning.
    - **Cloudflare:** `npm run zip` → `[site-slug]-deploy.zip` (contents of `out/` at the ZIP root). **Backend = Yes:** also output `CLOUDFLARE-SETUP.md` inline.
 4. **Post-deploy checklist:** connect domain (**set `SITE.domain`, rebuild, redeploy — never find-and-replace**), verify GSC tag, submit sitemap to GSC + Bing, **test all 3 forms end-to-end**, verify the IndexNow file, purge cache (Cloudflare), **run isitagentready.com/[DOMAIN]** (expect ~79 on Cloudflare free — that is the plan's ceiling, not a defect).
-5. **Verify the live deploy (now the entry point to the live audit tier).** Fetch the deployed URL and confirm: `llms.txt`, `auth.md` and every `.well-known/*` return 200 with the correct `Content-Type`; the `Link` header is present; www→apex 301 resolves. Then run the **full-sitemap 200 crawl** — every URL in `sitemap.xml` returns 200 (no 404/500/redirect-loop), not just a sample. Then run **AUDIT F** (Lighthouse ≥95 ×4 + Core Web Vitals + axe-core accessibility) against the deployed URL. Report all results — never assume a deploy succeeded because the build passed.
+5. **Verify the live deploy (now the entry point to the live audit tier).** Fetch the deployed URL and confirm: `llms.txt`, `auth.md` and every `.well-known/*` return 200 with the correct `Content-Type`; the `Link` header is present; www→apex 301 resolves. Then run the **full-sitemap 200 crawl** — every URL in `sitemap.xml` returns 200 (no 404/500/redirect-loop), not just a sample. Then run **AUDIT F** (Lighthouse ≥95 ×4 + Core Web Vitals + axe-core accessibility + a live Rich Results Test pass per schema type) against the deployed URL. Report all results — never assume a deploy succeeded because the build passed.
 
 ---
 
@@ -456,84 +541,103 @@ The backend is a **requirement-gated, opt-in** addition. It is never built unles
 
 When on, here is the model — the full spec, code patterns, manifest format, admin panel, SEO Score logic, `schema.sql`, dashboard setup guide, and audit live in `references/backend.md`.
 
-**What it gives the client:** a login at `clientdomain.com/admin` where they edit page text, manage blog posts and products, upload images, and edit SEO details with a live RankMath-style **SEO Score** panel — without touching code, ZIPs, or the Cloudflare dashboard.
+**What it gives the client:** a login at `clientdomain.com/cms` where they edit page text, manage blog posts and products, upload images, and edit SEO details with a live RankMath-style **SEO Score** panel — without touching code, ZIPs, or the Cloudflare dashboard. **`/cms`, never `/admin`** — that path is reserved for the Reply Portal (Section P), which now ships by default on every site; the two must not collide.
 
 **The two-layer model:**
 - **Template layer — Claude owns (ships in the ZIP):** HTML structure, design, default content, the `data-cms` editable zones, the manifest, the SEO Score logic, the admin UI.
 - **Content layer — client owns (lives in D1 + R2, never in the ZIP):** the field values, posts, products, media, SEO overrides.
 - **Edge merge:** a Pages Function reads D1 and uses HTMLRewriter to inject saved values server-side before the page reaches the visitor. Override wins; if none, Claude's default shows.
 
-**Content authoring stays with Claude:** when backend = Yes, you (the operator) still ask Claude to write posts/products. Claude outputs them as `*-import.json` files; the client uploads them in `/admin → Import`. Never hardcode posts/products into HTML on a backend site.
+**Content authoring stays with Claude:** when backend = Yes, you (the operator) still ask Claude to write posts/products. Claude outputs them as `*-import.json` files; the client uploads them in `/cms → Import`. Never hardcode posts/products into HTML on a backend site.
 
 ---
 
-## Forms — provider-pluggable (supersedes all older guidance)
+## Forms — SMTP only, both targets (supersedes all older guidance)
 
-One constant selects the provider. Everything else is identical.
+**Web3Forms is retired — deleted entirely.** One constant selects the provider; only two options remain.
 
 ```js
 // src/config/site.js
 export const FORMS = {
-  provider: 'web3forms',            // 'web3forms' (default, both targets) | 'resend' (Vercel only)
-  web3formsKey: 'YOUR-WEB3FORMS-KEY',
-  resendFrom: '',                   // e.g. orders@yourdomain.com — REQUIRES a verified domain
-  turnstileSiteKey: '',             // optional spam protection
+  provider: 'smtp',                  // 'smtp' (default, BOTH targets) | 'resend' (Vercel, verified domain)
+  smtpFrom: 'noreply@yourdomain.com',
+  resendFrom: '',                    // only needed when provider = 'resend'; REQUIRES verified domain
+  turnstileSiteKey: '',              // optional spam protection
+  destinations: { contact: '', order: '', wholesale: '' }, // fallback when the matching env var is unset
 }
 ```
 
-**Choosing:**
+**Default: `smtp`, on both Vercel and Cloudflare.** On Vercel this is nodemailer (`lib/mailer.js`). On Cloudflare it's a raw-socket SMTP client run from a Pages Function (`functions/_shared/mailer.js`) — Cloudflare's Workers runtime has no `net`/`tls`, so nodemailer can't run there, but the env var names, the `sendMail()` shape, and the graceful-degradation behaviour are identical either way. Never propose `resend` for a site without a live, verified domain.
 
-| | `web3forms` | `resend` |
-|---|---|---|
-| Targets | Vercel + Cloudflare | **Vercel only** (needs an API route) |
-| Needs a domain? | **No** — an email address is enough | **Yes** — verified sending domain (DNS records) |
-| Sends from | Web3Forms infrastructure | your own domain |
-| Setup | paste an access key | API route + `RESEND_API_KEY` env var + DNS |
+**Env vars (canonical, same names both targets):** `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` (optional). Destinations: `CONTACT_EMAIL`, `ORDER_EMAIL`, `WHOLESALE_EMAIL` (each optional, falling back to `FORMS.destinations`). Vercel reads `process.env.*`; Cloudflare Functions read `env.*` (a per-request argument, set as Encrypted variables in Pages → Settings). Never in the repo (crosscheck B5).
 
-**Default to `web3forms`.** It is the only provider that works while the domain is pending — which is the normal state of a new build. Switching to `resend` later is one constant plus an env var. Never propose `resend` for a site without a live, verified domain.
+`sendMail()`/`sendMailBatch()` returns `{sent:false, reason:'not-configured'}` when unconfigured — never throws. The API route/Function responds 503; the UI falls back to WhatsApp/phone.
 
-### Provider: `web3forms` — the exact CORS method (unchanged, still mandatory)
-
-NO `action`, NO `method`, NO `redirect` hidden field. Hidden inputs: `access_key`, `subject`, `from_name`, `botcheck` (honeypot), `replyto` (synced from the email field on input).
-
-```javascript
-function onSubmit(e){
-  e.preventDefault();
-  fetch('https://api.web3forms.com/submit', {
-    method: 'POST',
-    headers: { 'Accept': 'application/json' },   // Accept ONLY — no Content-Type
-    body: new FormData(form)
-  })
-  .then(r => r.json().then(d => ({ status: r.status, data: d })))
-  .then(res => {
-    if (res.status === 200 && res.data.success) window.location.href = thankYou;
-    else throw new Error((res.data && res.data.message) || 'Submission failed');
-  })
-  .catch(() => { /* on-page error with encoded email + chat fallback */ });
-}
+**Email deliverability — DNS checklist (cannot be fixed in code):**
 ```
+SPF:   TXT @ "v=spf1 include:your-smtp-provider.com ~all"
+DKIM:  add CNAME/TXT records from your SMTP provider dashboard
+DMARC: TXT _dmarc "v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com"
+```
+Document these in `.env.example` — this is the real spam fix. Warn client at handover.
 
-**Why this exact shape (the CORS rule table):**
-| Setup | Result |
-|---|---|
-| `body: FormData` (no Content-Type) | multipart/form-data = CORS simple request → no preflight ✓ |
-| header `Accept: application/json` only | Accept is CORS-safelisted → no preflight ✓ |
-| header `Content-Type: application/json` | NOT safelisted → preflight OPTIONS → "Failed to fetch" ✗ |
-| native POST `action=...` | Web3Forms 301-redirects → CORS error ✗ |
-| `redirect="false"` hidden field | conflicts — **remove it** ✗ |
+**`utils/emailTemplates.js` — branded HTML emails (LIGHT shell), one function per email type sharing HTML primitives** (`shell`, `field`, `divider`, `callout`, `button`, `escapeHtml`) — not a generic row-based builder. Full API, the primitives, all five emails, and the payment-method registry are in `references/forms.md`.
 
-**Key-pending fallback (required).** If `web3formsKey` is empty or still starts with `YOUR-`, skip the fetch and redirect straight to the thank-you page. Ordering must never dead-end during pre-launch. **Warn the user explicitly at handover: submissions are NOT emailed anywhere until the key is set — the chat hub is the only live order channel.**
+**⭐ Light-theme mandate (the #1 email rule):** every transactional email is a **light** email — white card body, **dark brand header band**, near-black text, brand colour as **accent only**. **Never a dark-background body:** Zoho/Gmail dark mode force-invert dark emails and no HTML opt-out stops it. This applies on Cloudflare too — the raw-socket mailer sends the same HTML.
 
-### Provider: `resend` — Vercel only
+**Config, not hardcoding:** all brand/location/currency/payment specifics come from the one `SITE.reply` block (accent = `reply.brand.primary`, header band = `reply.brand.headerDark`; light neutrals never vary). Never hardcode hex inside `emailTemplates.js`.
 
-`src/app/api/contact/route.js` — POST, validates, sends via Resend, returns `{success:true}`. Client posts JSON to `/api/contact` (same-origin, so no CORS constraints apply), then redirects to the thank-you page. `RESEND_API_KEY` is an env var in Vercel — **never in the repo**.
+**Resend (Vercel only, opt-in):** `src/app/api/contact/route.js` — POST, validates, sends via Resend, returns `{success:true}`. `RESEND_API_KEY` env var in Vercel — never in the repo. Crosscheck FAILS if selected on a target with no server-side route.
 
-**Crosscheck FAILS if** `provider === 'resend'` and target is static: the API route does not exist in an export build, so every form would silently 404.
+**All providers:** CSP `connect-src 'self'` covers same-origin SMTP sends on both targets (no third-party form API origin needed anymore). Three forms → `/thank-you-contact/`, `/thank-you-order/`, `/thank-you-wholesale/`, all `noindex, follow`, excluded from sitemap. Turnstile if configured: widget in the form, token verified server-side.
 
-### Both providers
-- CSP `connect-src` must include `https://api.web3forms.com` (web3forms) or `'self'` (resend).
-- Three forms → `/thank-you-contact/`, `/thank-you-order/`, `/thank-you-wholesale/`. All thank-you pages `noindex, follow` and excluded from the sitemap.
-- Turnstile, if configured: widget in the form, token verified server-side (`resend`) or passed through (`web3forms`). The honeypot alone is weak.
+**Crosscheck B11:** any reference to `web3forms`, `WEB3FORMS_KEY`, or `api.web3forms.com` anywhere in the build → FAIL. The provider is retired.
+
+---
+
+## Reply Portal system (Section P — default Yes, both targets now)
+
+A passcode-gated admin dashboard that lets the site operator reply to orders and enquiries without leaving the site — and the mechanism that makes payment collection flexible for any country/currency/payment rail. **Available on both Vercel (API routes + Upstash Redis) and Cloudflare (Pages Functions + KV) — no longer Vercel-only.** Default is now **Yes**; skip only when the client explicitly declines. **Full spec — storage, auth, admin UI, IDs, payment-detail parsing, WhatsApp, both targets — in `references/reply-portal.md`.** JavaScript/JSX throughout, not TypeScript, matching the rest of the site.
+
+The dashboard home is `/admin` — a passcode-gated **hub** with live order/enquiry counts linking to each section; nav is Dashboard · Orders · Enquiries on every admin page.
+
+### The core mechanism — flexible payment details
+
+The admin pastes **one blob** of real payment info (bank details, a wallet address, a payment link — any country, any rail) into the send-payment-email composer. `parsePaymentDetail()` (`lib/order.js` / `functions/_shared/order.js`) splits it into individually-copyable `{label, value}` fields via a 3-tier rule (colon-labelled line → known-label-word fallback → bare "Detail N"). This is what makes the same portal fit any niche without code changes — see `references/reply-portal.md` §3 for the exact algorithm. The customer sees each field as a tap-to-copy button on a public `/order/payment-details/` page (linked from the email, since email clients strip all JavaScript and can't host a real copy button) and in the WhatsApp message — both read the same parsed fields, never a re-typed duplicate.
+
+### Data layer
+
+**Vercel:** `lib/redis.js` — `@upstash/redis` SDK (not a hand-rolled REST client), checking **five** env var prefix variants. `lib/orderStore.js` / `enquiryStore.js` — one Redis **hash** per type, in-memory sort by `createdAt` (no separate sorted-set index). **Cloudflare:** `functions/_shared/orderStore.js` / `enquiryStore.js` — a KV namespace, one key per record + a capped index array. Both: `StoredOrder { orderNumber, customerName, customerEmail, customerPhone, items[], amountDue, status:'pending'|'payment-sent'|'payment-confirmed', channel:'whatsapp'|'email', createdAt, paymentDetails? }`; `StoredEnquiry { id, type:'contact'|'wholesale', name, email, phone?, message, meta?, status:'new'|'replied', createdAt }`. Full detail: `references/reply-portal.md` §2.
+
+### Auth
+
+`checkAdminPasscode(request)` (Vercel, reads `process.env.ADMIN_PASSCODE`) / `checkAdminPasscode(request, env)` (Cloudflare, reads `env.ADMIN_PASSCODE`) — compares to the `X-Admin-Passcode` header, 503 if unset, 401 if wrong, `null` if OK. Every admin route/Function calls this first. `PasscodeGate.jsx` verifies client-side by calling the orders-list endpoint with the header — no separate `/verify` route. `robots.txt` MUST disallow `/admin/`.
+
+### Admin pages
+
+All admin pages read their accent from `SITE.reply.brand.primary`. A dark admin shell is fine — it's a private tool, not an email. `/admin` (hub, live counts) · `/admin/orders/` (+`[id]`, status/channel badges, "Send/Resend payment details") · `/admin/enquiries/` (+`[id]`, filter pills all/contact/wholesale/new/replied) · `/admin/send-payment-email/` (method select, paste box, live preview, WhatsApp panel) · `/admin/reply-enquiry/` (reply composer). Same components on both targets — only the `fetch()` target (API route vs. Function) differs.
+
+### WhatsApp — wired end-to-end, not a dead link
+
+`lib/whatsapp.js` — `waLink`/`waLinkTo`/`waMessageText`, `waOrderLink` (new-order notification), `waPaymentDetailsMessage/Link` (mirrors the email, same parsed fields), `waPaymentConfirmationLink`. **The "Order via WhatsApp" checkout button must mint an order number, save it (`channel:'whatsapp'`), and open `waOrderLink`'s message — never a bare `wa.me` chat link with no order record.** Every WhatsApp feature is gated on `SITE.reply.channels.whatsapp` being configured.
+
+**⭐ Two message directions, two openers — never mixed up:**
+- **Customer → business** (order request, payment confirmation, the general chat-hub link) — every one of these opens with a literal greeting, **`Hi {SITE.name},`** — not a bold label. This is how a business immediately knows which site an inbound WhatsApp message belongs to.
+- **Admin → customer** (payment-details reply) — opens with `WA_HEADER` (`*${SITE.name}*` bold), the business identifying itself to the customer.
+
+**⭐ WhatsApp checkout is still a plain Yes/No at intake (Section E) — but "Yes" always means the full, properly built thing, never a shortcut.** Whether a site offers order-form-only, WhatsApp-only, or both, the checkout is one real form (name, required email, phone, address, payment method) — a WhatsApp-only site does not get a shorter form or a bare chat link. The WhatsApp button saves the order through the exact same save-and-email call the email button would use (`channel:'whatsapp'` instead of `'email'`), so `orderConfirmationEmail()` always fires, on every configuration that includes WhatsApp — it must never be skipped because the customer is "already talking to us on WhatsApp," and it must never be skipped because WhatsApp happens to be the site's *only* channel either. Full flow: `references/reply-portal.md` §7a.
+
+### Customer-facing pages (public, no-auth, order-number-as-token)
+
+`/order/payment-details/?id=` — amount due, each parsed field as a `CopyField`, opening/closing lines. `/order/confirm-payment/?id=` — screenshot upload (JPG/PNG/WebP/HEIC, 4MB cap) → emails the shop, marks `payment-confirmed`. Neither exposes anything beyond what the customer's own email already contained.
+
+### Thank-you page rule
+
+`/thank-you-order/` MUST only say "watch for the follow-up email with payment details" — NOT payment instructions, deadlines, or WhatsApp screenshot requests. Those come only after the admin sends payment details via the portal.
+
+### Crosscheck items for Reply Portal
+
+**The full, canonical, numbered checklist (B9, B10, Items 47–58) lives in one place only — "Pre-ship crosscheck" below, in its own "Reply Portal crosscheck" block, run alongside every other crosscheck on every build.** It is not repeated here to avoid two copies drifting apart under separate edits — that duplication is exactly the kind of mix-up this skill exists to prevent. If you're looking for the items themselves, go to "Pre-ship crosscheck."
 
 ---
 
@@ -561,6 +665,7 @@ export const CHAT = {
 - Widget scripts load **deferred, after first interaction or 3s idle** — never blocking first paint.
 - Every widget type used adds its domains to CSP `script-src` / `connect-src` / `frame-src`.
 - Link channels are real `<a href>` — they work with JS disabled and are crawlable.
+- **The `whatsapp` link channel's `href` always pre-fills a greeting:** `https://wa.me/{number}?text=${encodeURIComponent('Hi ' + SITE.name + ', ')}` — never a bare `https://wa.me/{number}` with no `text`. This is the same greeting rule the Reply Portal's WhatsApp messages follow (`references/reply-portal.md` §7) — applies whether or not Section P is enabled, since this is the general chat button, not a portal feature. A trailing space after the comma leaves the customer's cursor ready to type, not needing to add one themselves.
 
 ---
 
@@ -580,7 +685,7 @@ Mobile is the primary target; desktop is the enhancement.
 - Hamburger nav, compact footer (flex 2-row, link columns wrap), compact mega-dropdown (≤420px, hidden on mobile).
 - Tap targets ≥44px; no tiny click-only controls.
 - JivoChat icon-only (`window.jivo_config={disable_hello_message:true}` + `jivo_api.close()` on load).
-- **Backend = Yes:** the `/admin` dashboard is mobile-first as well.
+- **Backend = Yes:** the `/cms` dashboard is mobile-first as well.
 
 ---
 
@@ -591,15 +696,17 @@ Implemented as `scripts/crosscheck.mjs`. It **exits non-zero on failure** and ru
 **Blocking failures (ship-stoppers) — check these first:**
 - **B1. Domain placeholder in a production deploy.** If the deploy is production and `SITE.domain` is still `DOMAIN.com` (or appears anywhere in the output), FAIL. Permitted only for preview/pending builds — and then warn loudly.
 - **B2. Capability lies (Rule 10).** `SearchAction` emitted but no `/search/` route → FAIL. `api-catalog` / `server-card.json` listing endpoints that 404 on this target → FAIL. Static target advertising live MCP tools → FAIL.
-- **B3. `provider: 'resend'` on a static target.** The API route does not exist in an export build; every form would 404 → FAIL.
+- **B3. `resend` provider on a static (non-Functions) target.** Requires a real server-side route; a target with neither API routes nor Pages Functions wired for it → every form 404s → FAIL. (`smtp` is fine on either target — Cloudflare runs it via Pages Functions.)
 - **B4. Strategy docs leaked.** `docs/`, `PROJECT.md`, `keyword-map.md`, or `assets/product-photos/` present in the build output → FAIL.
-- **B5. Secrets in the repo.** `RESEND_API_KEY` or any API secret in tracked files → FAIL. (Web3Forms access keys are public by design — exempt.)
+- **B5. Secrets in the repo.** `SMTP_PASS`, `RESEND_API_KEY`, `ADMIN_PASSCODE`, or any API secret in tracked files → FAIL.
+- **B9. `ADMIN_PASSCODE` in a client bundle** (Section P = Yes). If it appears in a `NEXT_PUBLIC_*` env var or the compiled client JS → FAIL.
 - **B6. Missing agent files on the deployed target.** All A–N files present in the output with correct paths.
 - **B7. Compliance violation.** Any banned term from `docs/PROJECT.md` → Compliance found anywhere in the build output (HTML, JSON-LD, llms.txt, .well-known/*, alt text, MCP tool descriptions) → FAIL. See "Compliance guardrails".
 - **B8. Live-layer drift (Vercel).** `server-card.json` tools ≠ the live `/api/mcp` `tools/list` response, or any `api-catalog` URL 404s → FAIL. See "Agent-Ready — the LIVE layer" → V5.
+- **B11. Web3Forms present.** Any reference to `web3forms`, `WEB3FORMS_KEY`, or `api.web3forms.com` anywhere in the build output → FAIL. The provider is retired — every form runs on `smtp` (or opt-in `resend`).
 
 **Then verify, fix, and re-run until clean:**
-1. **Forms:** each form has `body: new FormData(form)`, header `Accept` only, NO `Content-Type`, NO `action`, NO `redirect` field, `e.preventDefault()`, JS `window.location.href` to the right thank-you page, access_key + empty botcheck, replyto sync.
+1. **Forms:** API route/Function exists, sends via nodemailer (Vercel) or the raw-socket client (Cloudflare)/Resend, returns JSON, UI redirects to thank-you, returns 503 (not crash) when unconfigured.
 2. **JS valid:** `node --check` the extracted form/script JS. Confirm global onclick functions survive minify.
 3. **JSON-LD:** parse EVERY `application/ld+json` block with a JSON parser — all valid. No bare Product on non-product pages. BreadcrumbList commas correct.
 4. **H1:** exactly one per page.
@@ -614,43 +721,57 @@ Implemented as `scripts/crosscheck.mjs`. It **exits non-zero on failure** and ru
 13. **Generated-file drift:** re-run `scripts/gen-agent-files.mjs` and diff — any hand-edit to a generated file is a FAIL (fix the config instead).
 14. **Deploy config present for the target:** Vercel → `vercel.json` at repo root. Cloudflare → `_headers` + `_redirects` at the ZIP root.
 15. **Git hygiene (Vercel target):** `.gitignore` covers `node_modules/`, `.next/`, `out/`; `package.json` is at the REPO ROOT (not nested); `CLAUDE.md` + `README.md` present.
-11. **Structure intact:** all product pages have offers; product count matches; footer + chat + script.js on every page; CSS braces balanced; div open/close balanced; single `</body>`/`</html>`.
-12. **AI signals:** homepage authority section + rich Store schema + sameAs + llms.txt + robots AI-allows present.
+16. **Structure intact:** all product pages have offers; product count matches; footer + chat + script.js on every page; CSS braces balanced; div open/close balanced; single `</body>`/`</html>`.
+17. **AI signals:** homepage authority section + rich Store schema + sameAs + llms.txt + robots AI-allows present.
 
 **Agent-Ready crosscheck (mandatory on every build):**
-13. **robots.txt** — all major AI bots listed with `Allow: /`; agent-readable resource comment block present.
-14. **llms.txt** — present at root; `Content-Type: text/plain` in `_headers`; contains brand facts, product categories, contact, agent resources section.
-15. **auth.md** — starts with exactly `# Auth.md` as first line; `agent_auth` JSON block present; `Content-Type: text/markdown` in `_headers`.
-16. **.well-known/api-catalog** — valid JSON; `Content-Type: application/linkset+json` in `_headers`; `Access-Control-Allow-Origin: *`.
-17. **.well-known/agent-skills/index.json** — has `$schema` field and `skills` array with `name/type/description/url/sha256` on each skill.
-18. **.well-known/mcp/server-card.json** — has `serverInfo`, `transport`, `capabilities` blocks; `commerce` and `legal` adapted to client niche.
-19. **.well-known/oauth-protected-resource** — present; `Content-Type: application/json`; `resource_documentation` points to `/auth.md`.
-20. **.well-known/oauth-authorization-server** — present; has `agent_auth` block; all null endpoints explicit.
-21. **.well-known/openid-configuration** — present; `Content-Type: application/json`; `public_site: true`.
-22. **.well-known/acp.json** — present; `"protocol": {"name": "acp", "version": "0.1.0"}` present.
-23. **.well-known/ucp** — present; **`"ucp": "1.0"` field mandatory** (scanner fails without it); `spec` and `schema` URLs present.
-24. **/js/webmcp.js** — present; loaded with `<script src="/js/webmcp.js" defer></script>` in `<head>` of every page.
-25. **_headers Link header** — `/*` rule contains the full `Link:` header referencing api-catalog, agent-skills, llms.txt, mcp/server-card, auth.md, and openid-configuration.
-26. **_headers Content-Types** — separate rules for every `.well-known/` file, `/auth.md`, `/llms.txt`, `/*.md` set correctly with `Access-Control-Allow-Origin: *`.
-27. **All placeholders replaced** — zero instances of `[DOMAIN]`, `[NUMBER]`, `[EMAIL]`, `[Brand]` remaining (except in comments).
+18. **robots.txt** — all major AI bots listed with `Allow: /`; agent-readable resource comment block present.
+19. **llms.txt** — present at root; `Content-Type: text/plain` in `_headers`; contains brand facts, product categories, contact, agent resources section.
+20. **auth.md** — starts with exactly `# Auth.md` as first line; `agent_auth` JSON block present; `Content-Type: text/markdown` in `_headers`.
+21. **.well-known/api-catalog** — valid JSON; `Content-Type: application/linkset+json` in `_headers`; `Access-Control-Allow-Origin: *`.
+22. **.well-known/agent-skills/index.json** — has `$schema` field and `skills` array with `name/type/description/url/sha256` on each skill.
+23. **.well-known/mcp/server-card.json** — has `serverInfo`, `transport`, `capabilities` blocks; `commerce` and `legal` adapted to client niche.
+24. **.well-known/oauth-protected-resource** — present; `Content-Type: application/json`; `resource_documentation` points to `/auth.md`.
+25. **.well-known/oauth-authorization-server** — present; has `agent_auth` block; all null endpoints explicit.
+26. **.well-known/openid-configuration** — present; `Content-Type: application/json`; `public_site: true`.
+27. **.well-known/acp.json** — present; `"protocol": {"name": "acp", "version": "0.1.0"}` present.
+28. **.well-known/ucp** — present; **`"ucp": "1.0"` field mandatory** (scanner fails without it); `spec` and `schema` URLs present.
+29. **/js/webmcp.js** — present; loaded with `<script src="/js/webmcp.js" defer></script>` in `<head>` of every page.
+30. **_headers Link header** — `/*` rule contains the full `Link:` header referencing api-catalog, agent-skills, llms.txt, mcp/server-card, auth.md, and openid-configuration.
+31. **_headers Content-Types** — separate rules for every `.well-known/` file, `/auth.md`, `/llms.txt`, `/*.md` set correctly with `Access-Control-Allow-Origin: *`.
+32. **All placeholders replaced** — zero instances of `[DOMAIN]`, `[NUMBER]`, `[EMAIL]`, `[Brand]` remaining (except in comments).
 
 **Technical-SEO / Accessibility / Performance crosscheck (v9 — static tier, runs on every build):**
-36. **Sitemaps split + image-aware:** `sitemap.xml` is an index referencing child sitemaps; each child is valid XML; product entries include `<image:image>`; no URL appears in two children; every child URL resolves to a real built route; no noindex/redirected/404 URL included.
-37. **No duplicate body content:** product descriptions and category intros are pairwise-unique (hash-compare); flag near-duplicates.
-38. **Inverse noindex/nofollow:** no indexable page carries `noindex`/`nofollow`; only thank-you + not-found are noindex; no important internal link is `nofollow`.
-39. **Accessibility (static):** skip-link present; one H1 + no skipped heading levels; landmarks present; every img has alt; every form control labelled; every icon-only button has `aria-label`; no positive `tabindex`; no `outline:none` without `:focus-visible`; `prefers-reduced-motion` block present.
-40. **Performance (structural):** AVIF+WebP for every image; dimensions present (CLS=0); CSS/JS minified + deferred; no render-blocking head scripts; `font-display: swap` + preconnect; homepage transfer < 1.5MB.
-41. **Visual design quality:** every grid uses one shared tile (single aspect + `object-fit: cover` + equal heights); no homepage section is bare (each has imagery/icon/card/tint); one radius + one shadow + one spacing token reused (no scattered ad-hoc values); hero has min-height/sized container + scrim where text overlays; peer sections share one alignment pattern; homepage has ≥6 sections with alternating surface treatments; all motion is `prefers-reduced-motion`-safe. Full spec: `references/design-quality.md`.
+41. **Sitemaps split + image-aware:** `sitemap.xml` is an index referencing child sitemaps; each child is valid XML; product entries include `<image:image>`; no URL appears in two children; every child URL resolves to a real built route; no noindex/redirected/404 URL included.
+42. **No duplicate body content:** product descriptions and category intros are pairwise-unique (hash-compare); flag near-duplicates.
+43. **Inverse noindex/nofollow:** no indexable page carries `noindex`/`nofollow`; only thank-you + not-found are noindex; no important internal link is `nofollow`.
+44. **Accessibility (static):** skip-link present; one H1 + no skipped heading levels; landmarks present; every img has alt; every form control labelled; every icon-only button has `aria-label`; no positive `tabindex`; no `outline:none` without `:focus-visible`; `prefers-reduced-motion` block present.
+45. **Performance (structural):** AVIF+WebP for every image; dimensions present (CLS=0); CSS/JS minified + deferred; no render-blocking head scripts; `font-display: swap` + preconnect; homepage transfer < 1.5MB.
+46. **Visual design quality:** every grid uses one shared tile (single aspect + `object-fit: cover` + equal heights); no homepage section is bare (each has imagery/icon/card/tint); one radius + one shadow + one spacing token reused (no scattered ad-hoc values); hero has min-height/sized container + scrim where text overlays; peer sections share one alignment pattern; homepage has ≥6 sections with alternating surface treatments; all motion is `prefers-reduced-motion`-safe; none of the dated AI-generated-page tells are present (assistant-palette colours, floating blur-pill nav, performative labels, invented social proof, >2-line display headlines, >2 typefaces). Full spec: `references/design-quality.md`.
 
 **Backend crosscheck (additional — run only when backend = Yes):**
-28. Manifest ↔ template key parity; stable keys; no orphaned or missing keys.
-29. No hardcoded posts/products in HTML where the edge would override/duplicate them.
-30. `_middleware.js` renders Claude's default when D1 has no override.
-31. Auth: hashed passwords (no plaintext compare); sessions use signed cookie with `SESSION_SECRET`; `setup.js` self-disables after first admin and is gated by `ADMIN_SETUP_TOKEN`.
-32. `robots.txt` disallows `/admin/` and `/api/`; `_headers` sets `/admin/*` to `no-store`.
-33. Import files valid against collection schema.
-34. `CLOUDFLARE-SETUP.md` present and current.
-35. `node --check` each file in `functions/` and `admin/*.js`.
+33. Manifest ↔ template key parity; stable keys; no orphaned or missing keys.
+34. No hardcoded posts/products in HTML where the edge would override/duplicate them.
+35. `_middleware.js` renders Claude's default when D1 has no override.
+36. Auth: hashed passwords (no plaintext compare); sessions use signed cookie with `SESSION_SECRET`; `setup.js` self-disables after first admin and is gated by `ADMIN_SETUP_TOKEN`.
+37. `robots.txt` disallows `/cms/` and `/api/`; `_headers` sets `/cms/*` to `no-store`.
+38. Import files valid against collection schema.
+39. `CLOUDFLARE-SETUP.md` present and current.
+40. `node --check` each file in `functions/` and `cms/*.js`.
+
+**⭐ Reply Portal crosscheck (run whenever Section P = Yes — the default; not gated behind an "if," skip only on the rare site that explicitly declined it):**
+47. Every admin route/Function calls `checkAdminPasscode` first; `ADMIN_PASSCODE` never reaches the client bundle (see B9 above); `robots.txt` disallows `/admin/` (see B10 above).
+48. Storage layer (`isStoreConfigured()`) never crashes when unconfigured — orders/enquiries still email through, they just don't appear in the dashboard.
+49. Order ref generated client-side with the unambiguous alphabet (`ABCDEFGHJKLMNPQRSTUVWXYZ23456789` — no 0/O/1/I/L); validated server-side; identical ref in WhatsApp + dashboard + email.
+50. `parsePaymentDetail` drives both the send-payment-email composer preview and the customer-facing `/order/payment-details/` page — never an unparsed pasted blob shown as-is.
+51. Status lifecycles fire: `markOrderSent` on payment email send, `markPaymentConfirmed` on screenshot upload, `markEnquiryReplied` on reply.
+52. **WhatsApp checkout actually saves an order and sends the structured `waOrderLink` message — not a bare chat link — on every Section E configuration that includes WhatsApp, including WhatsApp-only sites.** The checkout form has all its fields (required email included) regardless of which channel(s) are enabled.
+53. **The customer confirmation email fires unconditionally on every configuration that includes WhatsApp.** Trace `channel==='whatsapp'` through to `orderConfirmationEmail()` and confirm it isn't short-circuited.
+54. Every customer-originated WhatsApp message (order, payment confirmation, the general chat-hub link) opens with `Hi {SITE.name},` — never the bare `WA_HEADER` bold label, which is admin→customer only.
+55. Admin pages read accent from `SITE.reply.brand.primary` (no hardcoded hex); `/admin` hub reachable and passcode-gated; emails are the light shell (never dark — Cloudflare too).
+56. No hardcoded brand/location/currency/prefix/method/locale anywhere in the portal — all from `SITE.reply`. No `web3forms` reference anywhere (see B11 above).
+57. `/thank-you-order/` contains no payment instructions, no bank details, no deadline — those come only after the admin sends payment details via the portal.
+58. `paymentTermsLines()` is the single source for the WhatsApp text, the email HTML (`paymentTermsHtml()`), and the send-payment-email composer preview — no inline term lists duplicated anywhere else.
 
 Only produce the ZIP after this passes with zero errors. Report the pass/fail counts.
 
@@ -658,7 +779,7 @@ Only produce the ZIP after this passes with zero errors. Report the pass/fail co
 
 ## MODE 4 — Audit modes (Technical / SEO / AI-Visibility / Agent-Ready) + Auto-Fix
 
-Works on new and old sites. Audits run in **two tiers**: the **static tier** (AUDITS A–E) runs from the ZIP with no live URL and gates the build; the **live tier** (AUDIT F) needs the deployed URL and a headless browser (Lighthouse + axe-core) for performance, Core Web Vitals, contrast, keyboard operability, and the full-sitemap 200 crawl. Run the one the user asks for, or all for a full audit. If only a ZIP is available, run A–E and report that F requires the live URL.
+Works on new and old sites. Audits run in **two tiers**: the **static tier** (AUDITS A–E) runs from the ZIP with no live URL and gates the build; the **live tier** (AUDIT F) needs the deployed URL and a headless browser (Lighthouse + axe-core) for performance, Core Web Vitals, contrast, keyboard operability, the full-sitemap 200 crawl, and a live Rich Results Test pass (via the in-app browser) per distinct schema type shipped. Run the one the user asks for, or all for a full audit. If only a ZIP is available, run A–E and report that F requires the live URL.
 
 ### Step 1 — Get files
 Ask for the site ZIP if not provided.
@@ -676,10 +797,12 @@ If PROJECT.md present: read it (note backend = Yes/No). Else ask: brand+domain, 
 - `_redirects`: www→apex + http→https `301!` first; no redirect chains (3+ hops).
 - `_headers`: CSP correct (form API + chat + wss whitelisted), Cache-Control for assets, HTML revalidation, HTTPS/security headers. Agent-Ready Link header present on `/*`.
 - Performance: WebP, lazy-load, minified CSS/JS, deferred scripts, font-display swap, page weight.
-- **Mobile (release blocker):** viewport meta, overflow guards, inline-grid media safety net, no horizontal scroll, tap targets.
+- **Mobile (release blocker):** viewport meta, overflow guards, inline-grid media safety net, no horizontal scroll, tap targets. Also check the platform-level layer in `references/mobile-native.md` (tap highlight, `dvh`/`svh` height bug, input zoom, safe-area insets, overscroll) — real-hardware behaviors that don't show up in a static scan or emulation; flag what needs phone verification.
 - GSC tag + IndexNow key on all pages, IndexNow file at root.
-- Forms: correct CORS method, thank-you pages exist, botcheck present, CSP allows api.web3forms.com.
+- Forms: API route/Function exists and gracefully returns 503 (not crash) when unconfigured; thank-you pages exist for all three forms; no `web3forms` reference anywhere (B11).
 - **JSON-LD validity:** parse every block; flag bare Product on non-product pages, BreadcrumbList comma bug.
+- **Usability & cognitive load:** run the Nielsen-heuristics + cognitive-load + persona pass in `references/usability-audit.md` on home, shop/category, product, and cart/order; produces the `Usability: /100` row below.
+- **Visual design quality:** re-run the full `references/design-quality.md` check against the *live* site, not just at build time — grid uniformity, hero composition, section rhythm, colour/type polish, motion safety, imagery consistency, and the rule-8 dated-AI-tells scan. A technical audit of an already-built site re-verifies this, it isn't only checked the next time something gets built or fixed.
 
 **AUDIT B — SEO audit** ("audit", "check SEO", "fix my SEO")
 - Meta titles 50-60, unique, keyworded. Meta descriptions in band, unique, synced to og/twitter.
@@ -700,7 +823,7 @@ If PROJECT.md present: read it (note backend = Yes/No). Else ask: brand+domain, 
 - About page >700 words, milestones timeline, differentiation grid, footprint.
 - llms.txt present with brand facts + citation guidance; robots AI-allows present.
 - Brand name consistent everywhere.
-- **The 12 authority signals scorecard** (Founding Year, Founding Location/HQ, Quantifiable Scale, Competitive Differentiation, Historical Milestones, National/Global Footprint, Industry Leadership, Brand Narrative, Product Lines, Named Individuals, Awards & Rankings, Endorsements/Partnerships). Mark which are present on-site. For the last three, only add if the client supplies REAL facts — never fabricate.
+- **The 12 authority signals scorecard** (Founding Year, Founding Location/HQ, Quantifiable Scale, Competitive Differentiation, Historical Milestones, National/Global Footprint, Industry Leadership, Brand Narrative, Product Lines, Named Individuals, Awards & Rankings, Endorsements/Partnerships). Mark which are present on-site. For the last three, add them when they are REAL — facts the client supplies or that already exist on the site being migrated (including real reviews/awards); never fabricate ones that do not exist.
 - **Off-site reality check (report, don't fake):** if web engines show "Not found" / zero external references, explain the gap is OFF-SITE — backlinks, directories, reviews, real social profiles. On-page work cannot fix Perplexity alone.
 
 **AUDIT D — Agent-Ready audit** ("agent ready", "isitagentready", "agent-ready check", "llms.txt check")
@@ -739,17 +862,18 @@ To push beyond 79 requires either a paid Cloudflare plan or moving to Vercel wit
 - No hardcoded posts/products that the edge would override/duplicate.
 - `_middleware.js` has a default fallback for every injected zone.
 - Auth: hashed passwords, signed sessions, setup route self-disables + token-gated.
-- `robots.txt` disallows `/admin/` + `/api/`; `_headers` `/admin/*` no-store.
+- `robots.txt` disallows `/cms/` + `/api/`; `_headers` `/cms/*` no-store.
 - Import files valid against collection schema.
 - `CLOUDFLARE-SETUP.md` present and current.
 
-**AUDIT F — Live Performance & Accessibility (needs the deployed URL — cannot run from a ZIP)**
+**AUDIT F — Live Performance, Accessibility & Rich Results (needs the deployed URL — cannot run from a ZIP)**
 Run against the deployed site with Lighthouse (CI or PageSpeed Insights, mobile profile) + axe-core:
 - **Full-sitemap 200 crawl:** every URL in sitemap.xml returns 200 — no 404/500, no redirect loop/chain (3+ hops).
 - **Lighthouse ≥ 95** on Performance, SEO, Accessibility, Best-Practices.
 - **Core Web Vitals:** LCP < 2.5s, CLS < 0.1, INP < 200ms. (INP, not FID.)
 - **Accessibility (rendered):** axe-core zero critical/serious; contrast ≥ 4.5:1 (text) / 3:1 (large + UI); full keyboard walk with visible, unobscured focus; no keyboard traps.
-- Triage misses per `references/performance.md` (LCP → CLS → INP → Best-Practices). Auto-fix covers structural (Tier-1) regressions only; CWV/contrast findings are reported with remediation, not silently "fixed."
+- **Rich Results Test (live, not just static JSON-parsing):** the pre-ship crosscheck only confirms schema *parses* as valid JSON with required fields present — it can't confirm Google actually treats it as rich-result-eligible. Using the in-app browser, navigate to `search.google.com/test/rich-results`, enter one representative live URL per distinct schema type shipped on the site (a product page for Product, the FAQ page and homepage for FAQPage, any inner page for BreadcrumbList, homepage for Organization, a blog post for Article, contact page for LocalBusiness if present), and read the result for each. Flag anything the tool reports as invalid or ineligible that the static check missed — e.g. a Product block that parses fine as JSON but is missing a field Google requires for eligibility, not just for validity. Don't rely on the JSON-parse check alone to mean "Google will show this as rich" — that's a static proxy, not the real answer, and only a live tool run gives the real answer.
+- Triage misses per `references/performance.md` (LCP → CLS → INP → Best-Practices). Auto-fix covers structural (Tier-1) regressions only; CWV/contrast/Rich-Results findings are reported with remediation, not silently "fixed."
 
 Tooling note: this tier introduces a Lighthouse CI + axe-core dependency the static crosscheck does not have. It is a **post-deploy** step in the After-build checklist and in Mode 2/3 handover, not a ZIP-time gate.
 
@@ -769,6 +893,7 @@ Performance / Core Web Vitals: /100
 Forms:         /100
 Mobile:        /100
 Backend:       /100   (only if backend = Yes)
+Usability:     /100
 Overall:       /100
 
 CRITICAL ([n]) — [Cx] issue — file — impact
@@ -799,7 +924,7 @@ Deliver the result. If the audit changed files, repackage the ENTIRE site into `
 - **Cart:** localStorage (`mm-cart`), +/- qty (buttons `type="button"` + aria-label), min-order validation, crypto discount auto-applied, free-shipping threshold display.
 - **Payments (always):** Crypto (BTC/USDT) + Bank Transfer; others per PROJECT.md.
 - **Accessibility:** aria-label on every icon-only button; aria-hidden on decorative emoji; AA contrast.
-- **Backend = Yes:** a discreet "Admin" link is NOT placed in public nav/footer (keep `/admin` unlinked + robots-disallowed).
+- **Backend = Yes:** a discreet "Admin" link is NOT placed in public nav/footer (keep `/cms` unlinked + robots-disallowed). Same rule applies to `/admin` (Reply Portal) whether or not backend is also enabled.
 
 **Visual design quality (non-negotiable — full spec in `references/design-quality.md`):** every page must be clean, uniform, and genuinely attractive — not just technically correct.
 - **No bare sections:** every section has a visual anchor (imagery, icons, an elevated/bordered card, or a subtle surface tint) — never plain text on flat white. Homepage has ≥6 distinct sections with alternating surface treatments.
@@ -867,7 +992,7 @@ Allow: /
 # MCP Server Card: https://[DOMAIN]/.well-known/mcp/server-card.json
 ```
 
-**Backend = Yes:** also add `Disallow: /admin/` and `Disallow: /api/` before the AI crawler block.
+**Backend = Yes:** also add `Disallow: /cms/` and `Disallow: /api/` before the AI crawler block. (Reply Portal, Section P, uses `Disallow: /admin/` instead — see "Reply Portal system." The two paths are deliberately distinct so they never collide when both are enabled on the same Cloudflare site.)
 
 ---
 
@@ -1560,7 +1685,7 @@ Some verticals carry real legal or ad-account risk in their WORD CHOICES, not ju
 
 **Worked example (a prop-money store, real):** banned — *fake money, counterfeit, undetectable, indistinguishable, passes the pen test, 1:1 scale, full size*. Required — every product described as *reduced scale, clearly marked as a prop, no replicated security features*, per RBA reproduction guidelines. Prohibited — any implication a note could pass as real currency, or that the central bank endorses it. Authority — Crimes (Currency) Act 1981 + Meta advertising policy.
 
-**Also enforced:** Rule 5 (never fabricate brand facts) is scanned too — no invented statistics, awards, press mentions, named clients, or partnerships. If the client did not state it in intake, it does not appear on the site. Reviews/testimonial schema is emitted ONLY for real, attributable reviews — never generated.
+**Also enforced:** Rule 5 — do not INVENT brand facts (no made-up statistics, awards, press, named clients, or partnerships). Real facts the client supplies, or that are being migrated from their existing site, DO appear on the site — record each with its source in `docs/PROJECT.md`. Reviews/testimonial schema (`Review`/`AggregateRating`) is emitted for real, attributable reviews — including reviews migrated from the client's existing site or business profiles — and never for invented ones.
 
 **Note for image-heavy verticals:** compliance applies to imagery, not just words. If a product's whole legal position is "this is not the real thing", stock photos of the real thing contradict it in the first place a reviewer looks. Flag this at intake and at handover.
 
@@ -1589,19 +1714,22 @@ Some verticals carry real legal or ad-account risk in their WORD CHOICES, not ju
 | `references/intake.md` | Mode 1 intake, updating `docs/PROJECT.md`, **Section H compliance language**, **Section M deploy target**, **Section O backend gate** |
 | `references/nextjs.md` | Building or updating any page — App Router patterns, `generateStaticParams`, metadata API, JSON-LD, static-export vs Vercel, the `src/config/site.js` contract |
 | `references/pages.md` | Page-by-page build requirements — sections, components, schema per page type, mobile, a11y, and what v8 removed |
+| `references/mobile-native.md` | **Platform-level mobile layer** — tap highlight, the `dvh`/`svh` height bug, input zoom, safe-area insets, overscroll, the full "never ship" checklist; read alongside `pages.md`'s mobile section and AUDIT A's Mobile bullet |
 | `references/seo.md` | Meta formulas, schema per page type, split + image sitemaps, robots, GSC + Bing + IndexNow, validity traps, freshness |
 | `references/accessibility.md` | **WCAG 2.2 AA** — the static build rules + the live (AUDIT F) checks: landmarks, focus, contrast, keyboard, forms |
-| `references/design-quality.md` | **Visual design quality (build gate)** — grid/tile uniformity, hero composition, section rhythm + alignment, depth/colour/type polish, tasteful motion, the no-bare-section rule |
+| `references/design-quality.md` | **Visual design quality (build gate)** — grid/tile uniformity, hero composition, section rhythm + alignment, depth/colour/type polish, tasteful motion, the dated-AI-tells registry, the no-bare-section rule |
+| `references/usability-audit.md` | **Usability & cognitive load (AUDIT A)** — Nielsen's 10 heuristics scored to `/100`, the cognitive-load checklist, the 5-persona walkthrough; produces the audit report's `Usability: /100` row |
 | `references/performance.md` | **Core Web Vitals + Lighthouse 95+ gate (both targets)** — structural (static) vs measured (live) standards; target-conditional image handling |
 | `references/ai-visibility.md` | GEO/AEO/LLM visibility, the 12 authority signals, llms.txt, off-site reality |
 | `references/agent-live.md` | **Vercel live layer** — MCP Streamable HTTP server, JSON API, live ACP/UCP, target-aware `.well-known` generation, live-layer crosscheck |
 | `references/vercel.md` | **Vercel target** — `vercel.json`, GitHub workflow, env vars, connecting a domain later, Framework Preset trap, 404 troubleshooting, deploy verification |
-| `references/cloudflare.md` | **Cloudflare target** — `_headers`, `_redirects`, ZIP upload, canonicalization, dashboard setup |
-| `references/forms.md` | Any form — provider selection, the Web3Forms CORS method, the `resend` route, Turnstile, key-pending fallback, thank-you pages |
+| `references/cloudflare.md` | **Cloudflare target** — `_headers`, `_redirects`, ZIP upload, canonicalization, dashboard setup, **Pages Functions for forms + Reply Portal (new)** |
+| `references/forms.md` | Any form or email — provider selection (`smtp` only default on both targets, `resend` opt-in Vercel — **Web3Forms retired**), nodemailer (Vercel) + raw-socket SMTP (Cloudflare) setup, `SMTP_*` env vars, the **light** email shell + `SITE.reply` config + the real per-email-function API, the five emails, payment-terms + payment-details messages, payment-method registry, DNS deliverability, Turnstile, thank-you pages |
+| `references/reply-portal.md` | **Reply Portal (Section P — default Yes, both targets)** — order/enquiry IDs, Redis (Vercel) / KV (Cloudflare) stores + status lifecycles, `parsePaymentDetail` flexible payment-field parsing, passcode auth, admin UI + `/admin` dashboard hub, the public customer-facing payment/confirm pages, WhatsApp reply system (wired end-to-end), env vars, build-vs-edit, audit checklist |
 | `references/niche-variants.md` | Locale, age gates, disclaimers, payment variants, shop structures — the starting point per vertical |
 | `references/backend.md` | **Client backend (backend = Yes → Cloudflare only)** — two-layer model, manifest, functions, admin panel, SEO Score, `schema.sql`, setup guide, import workflow, backend audit |
 
-Every reference is current as of v9.1 (design-quality.md is new in v9.1; accessibility.md + performance.md are new in v9; seo/nextjs/vercel/cloudflare carry v9 deltas). Each opens with a delta block where behaviour changed — read it before the body. **On any conflict, SKILL.md wins.**
+Every reference is current as of v11.1 (seo.md, vercel.md, and cloudflare.md updated in v11.1 with the live Rich Results Test pass; forms.md and reply-portal.md rewritten in v11 — Web3Forms retired, Reply Portal now default-Yes on both targets via Pages Functions on Cloudflare; intake.md Section P updated to match; design-quality.md is new in v9.1 and gained motion numerics, the colour proportion law, and the dated-AI-tells registry (rule 8) in v11.1; accessibility.md + performance.md are new in v9; nextjs.md carries v9 deltas; mobile-native.md and usability-audit.md are new in v11.1). Each opens with a delta block where behaviour changed — read it before the body. **On any conflict, SKILL.md wins.**
 
 ---
 
@@ -1639,9 +1767,10 @@ Never hand-edit generated files (llms.txt, .well-known/*, vercel.json, _headers)
 - Never commit node_modules/, .next/, out/.
 
 ## Live placeholders
-[domain / chat / form key / GSC — and what breaks while each is unset]
+[domain / chat / SMTP creds / RESEND_API_KEY (if resend) / GSC — and what breaks while each is unset]
+[if Reply Portal: ADMIN_PASSCODE / storage (Vercel: Upstash Redis URL+Token · Cloudflare: REPLY_KV binding) — dashboard blank without them]
 
-## Brand facts (only these are true — never invent more)
-[founded, ships, order rules, payment, real milestones]
-No invented statistics, awards, press, or named clients. Ever.
+## Brand facts (real only — preserve them, never invent new ones)
+[founded, ships, order rules, payment, real milestones, real reviews/awards + source]
+Preserve real client-provided or migrated facts, reviews and awards (with source). Never fabricate ones that do not exist.
 ```

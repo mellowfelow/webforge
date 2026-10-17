@@ -1,6 +1,8 @@
-# WebForge — Intake & Strategy reference (v8)
+# WebForge — Intake & Strategy reference (v9)
 
 Read in Mode 1, and whenever updating `docs/PROJECT.md`.
+
+**v9 delta:** Section L drops Web3Forms — `smtp` is the only default provider on both targets now. Section P (Reply Portal) is now offered on Cloudflare too (via Pages Functions + KV, not just Vercel + Upstash Redis) and defaults to **Yes** — skip only if the client declines.
 
 **Entry Path A** ("build me a site"): present sections ONE AT A TIME. Wait for answers. Never dump the whole form.
 **Entry Path B** (requirements pasted): read everything, extract, present a confirmation summary, ask "Anything to change before I build?", then proceed.
@@ -33,7 +35,7 @@ Minimum order*, free-shipping threshold*, flat shipping fee, alternative-payment
 Pages to include; menu order (exact, top-level)
 
 ### E — Checkout & payment
-- How customers order*: chat / order form / both
+- How customers order*: chat / order form / both. **Still a plain per-channel Yes/No — but every configuration is the same real form** (name, required email, phone, address, payment method), just with one button ("Place order"), the other ("Order via WhatsApp"), or both. A "chat"-only site is not a lighter build — it still collects a required email and still sends `orderConfirmationEmail()` on every order, unconditionally. See `references/reply-portal.md` §7a.
 - Destination email for orders*
 - Payment methods accepted*
 - Financing page? (y/n)
@@ -99,20 +101,26 @@ Per product: name, price, category, one-line description, badge (Popular / New /
 - No photos? Placeholders are generated. Say so plainly.
 - **If the product's legal position is "this is not the real thing", stock photos of the real thing contradict it.** Flag at intake, not at handover.
 
-### L — Forms
-- **Provider:** `web3forms` (default) or `resend`
+### L — Forms / email transport
+- **Provider:** `smtp` (default, both targets) | `resend` (Vercel, verified domain)
 
-| | `web3forms` | `resend` |
+| | `smtp` | `resend` |
 |---|---|---|
-| Targets | Vercel + Cloudflare | **Vercel only** |
-| Needs a domain? | **No** | **Yes** — verified sending domain (DNS) |
-| Sends from | Web3Forms | your own domain |
+| **Default?** | **Yes — both targets** | No |
+| Targets | Vercel + Cloudflare (Pages Functions) | Vercel only |
+| Needs a domain? | No (any SMTP server) | **Yes** (verified DNS) |
+| Sends from | Your SMTP account | Your domain |
+| HTML emails | ✅ | ✅ |
+| Reply Portal | ✅ Required | ✅ |
 
-**Default to `web3forms`.** It is the only provider that works while the domain is pending — the normal state of a new build. Switching later is one constant + an env var. Never propose `resend` for a site without a live, verified domain.
+**Default: `smtp` for every site, either target.** Branded HTML emails; gracefully falls back to chat if unconfigured. On Vercel this is nodemailer; on Cloudflare it's a raw-socket SMTP client run from a Pages Function (Cloudflare's runtime has no nodemailer support) — same env var names either way. Web3Forms is retired; there is no longer a "no env var" fallback provider.
 
-- Web3Forms access key (or "pending" — the site still works; forms redirect to thank-you without emailing, and chat carries orders. Say this explicitly.)
-- Destination emails: contact / order / wholesale
-- Cloudflare Turnstile site key (optional; the honeypot alone is weak)
+Collect:
+- SMTP credentials (host, port, user, app password, from address) — or "pending" (site still works via WhatsApp/chat until set).
+- Destination emails: contact / order / wholesale — each optionally its own env var (`CONTACT_EMAIL`/`ORDER_EMAIL`/`WHOLESALE_EMAIL`), falling back to a config default.
+- Cloudflare Turnstile site key (optional; honeypot alone is weak)
+
+See `references/forms.md` for full SMTP setup (both targets) and the DNS deliverability checklist.
 
 ### M — Hosting / deploy target
 Ask plainly. **Both are first-class.** This is INDEPENDENT of the backend question (Section O).
@@ -129,10 +137,10 @@ Ask plainly. **Both are first-class.** This is INDEPENDENT of the backend questi
 
 **Choosing Cloudflare does NOT mean adding a backend.** Only the reverse is forced: backend = Yes → Cloudflare. If the user picks Cloudflare, build Cloudflare — don't re-argue for Vercel.
 
-### N — Brand authority facts (AI visibility — TRUTHFUL ONLY)
-Founding year, founding location / HQ, what makes them different, milestones (year: what happened), geographic footprint, and — **only if real** — named individuals, awards, press, partnerships, stockists.
+### N — Brand authority facts (REAL only — collect, don't invent)
+Founding year, founding location / HQ, what makes them different, milestones (year: what happened), geographic footprint, and — **if they exist** — named individuals, awards, press, partnerships, stockists, reviews/ratings. **When migrating an existing site, its current reviews, ratings, awards and testimonials are real content — collect them (and their source) so they are preserved, not dropped.**
 
-> Never invent any of these. Not one statistic, not one award, not one client name. A fabricated fact is worse than a missing one: it is a lie that outranks.
+> Never INVENT these — don't make up a statistic, award, or client name that does not exist. But always preserve the REAL ones the client has or that already exist on the site being migrated: a real fact omitted is a lost ranking signal; a fabricated one is a lie that outranks. Record real facts with their source.
 
 If a client has no awards or press, say the site will lean on what is real — founding story, specialism, geography, product depth.
 
@@ -140,6 +148,32 @@ If a client has no awards or press, say the site will lean on what is real — f
 Backend Yes/No. **Default No.**
 - **No** → pure static Next.js site. Skip all backend work.
 - **Yes** → **target is forced to Cloudflare Pages.** Collect: collections the client manages (page text always; blog y/n; products y/n; custom types + fields), admin email(s), do they edit SEO details (focus keyword + meta + live SEO Score panel — usually yes), media uploads y/n, edits-go-live mode (Instant = edge reads D1 live, recommended; Publish = client pushes changes).
+
+### P — Reply Portal (both targets now — ask on every site, opt out only if declined)
+Reply Portal Yes/No. **Default Yes** — build it unless the client explicitly declines. Available on **both** Vercel and Cloudflare (Pages Functions + KV on Cloudflare; API routes + Upstash Redis on Vercel — see `references/reply-portal.md`).
+
+- **No** → site has no admin dashboard. Only skip this when the user has said they don't want one — it is not a lesser build, but it is no longer a rare opt-in either.
+- **Yes** → adds:
+  - Order/enquiry store (Redis on Vercel, KV on Cloudflare)
+  - Passcode-gated admin dashboard: `/admin` hub (live order/enquiry counts) + `/admin/orders/` and `/admin/enquiries/`
+  - Payment-details composer at `/admin/send-payment-email/` — paste the real detail once, it's auto-split into individually-copyable fields (`parsePaymentDetail` — works for any country/payment rail) + WhatsApp reply panel
+  - Enquiry-reply composer at `/admin/reply-enquiry/` (live preview)
+  - A public, no-auth `/order/payment-details/` page where the customer taps each field to copy it, and `/order/confirm-payment/` to upload a payment screenshot
+  - Both checkout channels (WhatsApp + email) save to the dashboard with a channel badge — the WhatsApp order button mints a real order number and saves it, it is never just a bare chat link
+  - Payment terms consistent across WhatsApp, email, and the composer preview (single source)
+
+**Requires the `smtp` form provider** (Section L) — on Vercel that's nodemailer; on Cloudflare it's the raw-socket SMTP client run from a Pages Function. `resend` also supports it on Vercel.
+
+**Collect when Yes:**
+- `ADMIN_PASSCODE` — server-only env var, never exposed to browser. Gated via `X-Admin-Passcode` header.
+- **Vercel:** Upstash Redis REST URL + Token — from Vercel Storage tab → "Create Database". The storage client checks 5 common credential-var-name variants automatically.
+- **Cloudflare:** a KV namespace, bound in Pages → Settings → Bindings (`references/cloudflare.md` → "Forms & Reply Portal").
+- WhatsApp number (for WA checkout + admin WA reply panel pre-filled messages)
+- **The `SITE.reply` config block** (single source for every email/WhatsApp/terms/admin-accent): accent colour (`brand.primary`) + header-band dark (`brand.headerDark`); currency `{code, symbol, locale}`; order prefix; header tagline + dispatch/logistics line; and the **payment methods** — for each: label, opening/closing sentence template. See `references/forms.md` (`SITE.reply`) and `references/reply-portal.md`.
+
+**Mandatory light-email + theme rule (applies even when Section P = No, for email):** all outbound HTML emails are **LIGHT** — white card, dark brand header band, near-black text, brand colour as **accent only**. Never a dark-background body (Zoho/Gmail dark mode force-invert it; no HTML opt-out works — this applies on Cloudflare too, not just Vercel). All brand/location/currency/payment specifics come from the one `SITE.reply` block in `config/site.js` (accent = `reply.brand.primary`, band = `reply.brand.headerDark`); admin pages read the same accent. Full detail in `references/forms.md`.
+
+> Gate rule: Section P is asked for every site on either target. Default is **Yes** — build it unless the client says they don't want it. Skip it for sites with no orders/enquiries to manage, or when the client has explicitly declined.
 
 ---
 
@@ -153,7 +187,7 @@ in [range]. [One sentence on what makes them different.]
 ```
 Reused verbatim in: homepage hero subtext, homepage authority section, About opening, `Organization`/`Store` schema `description`, FAQ "What is [Brand]?", `llms.txt`, `mcp/server-card.json`.
 
-**Step 2 — Confirm deploy target + form provider.** State the consequences plainly (see M and L).
+**Step 2 — Confirm deploy target + form provider + reply portal.** State the consequences plainly (see M, L, P). Default: Vercel + smtp + reply portal **Yes** (build it unless declined).
 
 **Step 3 — Keyword strategy.** Cluster by intent. Show the assignment. Wait for confirmation.
 
@@ -189,7 +223,8 @@ GSC code · Bing code · IndexNow key
 ## Deploy
 Target: Vercel | Cloudflare Pages
 Repo: [url]   ·   Backend: No | Yes (forces Cloudflare)
-Form provider: web3forms | resend   ·   Turnstile: y/n
+Form provider: smtp | resend   ·   Turnstile: y/n
+Reply Portal: Yes (default) | No — declined. Storage: Upstash Redis (Vercel) | KV (Cloudflare)
 
 ## Contact & business
 Emails (contact/order/wholesale) · chat channels · location/HQ · country · currency
@@ -200,9 +235,9 @@ Min order · free-ship threshold · flat ship · discount + code · payment meth
 ## Brand entity statement
 [the paragraph from Step 1 — verbatim, reused everywhere]
 
-## Brand authority facts (TRUTHFUL ONLY)
+## Brand authority facts (REAL only — preserve, don't invent)
 Founded [year] in [place] · differentiators · milestones · shipping coverage
-Awards/press/partners: [only real ones, or "none"]
+Awards/press/partners/reviews: [real ones + source (incl. migrated from existing site), or "none"]
 
 ## Compliance
 Age gate · disclaimer · GDPR
@@ -223,6 +258,9 @@ Pillars · clusters · 12-week calendar · published vs unused
 
 ## Backend block (if Yes)
 Collections · admin emails · SEO editing · go-live mode
+
+## Reply Portal block (if Yes)
+ADMIN_PASSCODE set · Storage configured (Upstash Redis / Cloudflare KV) · WhatsApp number · email provider = smtp/resend
 
 ## Decisions log
 [date] — [decision] — [why]
