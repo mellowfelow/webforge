@@ -44,6 +44,7 @@ These are absolute. They come from real builds that broke and were fixed. Never 
 11. **Compliance language is testable, not remembered.** If a vertical has banned words or required framings (Intake Section H), they go in `CLAUDE.md` AND are scanned across the entire build output by the crosscheck. A violation is a ship-stopper. See "Compliance guardrails".
 12. **Strategy docs never ship to the public web.** `docs/PROJECT.md`, `docs/keyword-map.md`, `docs/blog-plan.md`, and (when keyword-engine ran) `docs/taxonomy-map.md` + `docs/starter-product-list.csv` + `docs/faq-bank.md` + `docs/product-gaps.md` all live in `docs/` — never in `public/`, never in the deploy output. A publicly downloadable keyword strategy hands competitors the whole plan.
 13. **Agents may draft, humans complete.** Any live agent endpoint is read-only plus order-draft. Never expose payment capture, never accept card data, never mutate state from an agent call. See "Agent-Ready — the LIVE layer".
+14. **A link + a named platform is an instruction, not something to confirm first.** When the user pastes a URL and names (or has already established) which platform/tool to run it through — Semrush, GSC, PageSpeed, Rich Results Test, or any other platform they dictate — use that URL with that platform immediately, whichever mechanism actually reaches it (a dedicated tool/MCP for that platform when one is available, the live browser session when it isn't — e.g. AUDIT F's Rich Results Test pattern: navigate, enter the URL, read the result). Don't ask whether to proceed, which tool to use, or whether the link looks right first — the user already told you both. Then act on what comes back — follow up and fix what the audit found, the same as any other audit finding; don't stop at reporting it if the user's intent was clearly "clean this up." Still ask when the link's *target* is genuinely ambiguous (e.g. it's unclear which of two sites is meant) — that's a different problem than which tool to use.
 8. **Backend rules (only when backend = Yes — see Intake Section O).** The backend is OPTIONAL and gated by intake; never add it unless requested.
    - **Two-layer model is sacred.** Claude owns the template layer (structure, design, defaults, the editable-field manifest) shipped in the ZIP. The client owns the content layer (field values, posts, products, media, SEO overrides) stored in D1 + R2. At render the override wins; if none exists, Claude's default shows. Never collapse these layers.
    - **When backend = Yes, content is data, not markup.** Blog posts and products go into D1 via import files Claude generates — NEVER hardcoded into static HTML.
@@ -110,7 +111,7 @@ Action: Build every file in one pass — mobile-first + technical + SEO + AI vis
 
 **Mode 4 — Audit modes (Technical / SEO / AI-Visibility / Agent-Ready) + Auto-Fix**
 Trigger: "audit", "check SEO", "AI visibility check", "technical audit", "agent ready", "isitagentready", "something's broken", "fix my SEO", "deploy check", or user uploads a site ZIP.
-Action: Run the requested audit (or all four). Produce a prioritized report with before/after scores. Walk through fixes; each fix RE-APPLIES the relevant build standard from this skill. Re-run the pre-ship crosscheck. If files changed, deliver a complete deploy-ready ZIP of the whole site.
+Action: Run the requested audit (or all four). **A link the user pastes here, naming a platform (Semrush or otherwise), is run immediately, no confirmation question first — see Rule 14.** Produce a prioritized report with before/after scores. Walk through fixes; each fix RE-APPLIES the relevant build standard from this skill. Re-run the pre-ship crosscheck. If files changed, deliver a complete deploy-ready ZIP of the whole site.
 
 > Audit modes are how an already-built, already-SEO'd site gets re-checked for technical + SEO + AI + agent-ready issues. They are first-class — see "MODE 4" for the sub-audits and exactly what each checks.
 
@@ -891,7 +892,7 @@ To push beyond 79 requires either a paid Cloudflare plan or moving to Vercel wit
 - `CLOUDFLARE-SETUP.md` present and current.
 
 **AUDIT F — Live Performance, Accessibility & Rich Results (needs the deployed URL — cannot run from a ZIP)**
-Run against the deployed site with Lighthouse (CI or PageSpeed Insights, mobile profile) + axe-core:
+Run against the deployed site with Lighthouse (CI or PageSpeed Insights, mobile profile) + axe-core. Any link the user supplies here, or names a platform for, is run immediately — see Rule 14.
 - **Full-sitemap 200 crawl:** every URL in sitemap.xml returns 200 — no 404/500, no redirect loop/chain (3+ hops).
 - **Lighthouse ≥ 95** on Performance, SEO, Accessibility, Best-Practices.
 - **Core Web Vitals:** LCP < 2.5s, CLS < 0.1, INP < 200ms. (INP, not FID.)
