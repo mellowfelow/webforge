@@ -193,6 +193,8 @@ Only create the collection tables the client actually uses (drop `products` if t
 
 ## 5. The SEO Score panel (the RankMath replica)
 
+**`focusKeyword` = `docs/keyword-map.md`'s Primary Keyword for that page/post** (when keyword-engine ran) or the client's own single chosen keyword (standalone fallback) — never invented or re-derived. The page's secondary/LSI keywords (5+ per page, 3+ for homepage/shop, from keyword-engine) are **not** a CMS-editable field and have no place in this panel — they're woven into body copy once at build/content-generation time. A backend client editing their focus keyword never touches, and never silently orphans, the secondaries keyword-engine assigned.
+
 Pure heuristic, computed in `seo-score.js` and/or client-side in `cms.js` — no WordPress, no external API. For a given {content/body, focusKeyword, title, metaDescription, url}, score 0-100 with traffic-light checks:
 
 - Focus keyword in SEO title — and ideally near the start

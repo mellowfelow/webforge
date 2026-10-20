@@ -92,6 +92,18 @@ Log key in PROJECT.md → Hosting → IndexNow key.
 
 ---
 
+## og:image — derivation and sizing
+
+`og:image` is required by the "Complete social meta" crosscheck item but was never specified beyond "present" — this closes that gap.
+
+- **Size: 1200×630** (the standard OG preview-card size every major platform expects — Facebook, X, LinkedIn, WhatsApp, Slack).
+- **Derive it from whatever image already anchors that page, never source a fresh image for it.** Homepage/category pages: crop from the page's hero at 1200×630 (`object-fit: cover`, same subject-visible rule as the hero itself). Product pages (no hero — see `pages.md` § Product): crop from the primary gallery image instead. Blog posts: crop from the post's thumbnail image.
+- One per key page (home, shop, each blog post) — not every single page needs a bespoke one; a page with no natural hero/thumbnail (e.g. a legal page) falls back to the homepage's og:image rather than going without one.
+- If the image-sourcing skill produced the site's imagery, its sourced hero/thumbnail is the input to this crop — this skill does not source a separate image, only crops/resizes what already exists.
+- Feeds `opengraph.images` in `generateMetadata` (`references/nextjs.md`) exactly like any other OG field — this is a sizing/derivation rule for that same array, not a new mechanism.
+
+---
+
 ## AI visibility content requirements
 
 Apply these during Mode 3 (build) and Mode 4 (audit). Full AI SEO reference is in `references/ai-visibility.md`.
@@ -117,7 +129,7 @@ Structure:
 ### FAQ content format (AEO standard)
 Every FAQ answer must follow this format:
 - H3 for question (or use FAQPage structure)
-- Direct answer in FIRST SENTENCE — 40-60 words
+- Direct answer in FIRST SENTENCE — **homepage FAQ: 40–55 words; dedicated FAQ page: up to 65 words — never exceed 65 in any answer** (matches keyword-engine's `content-planning.md` Answer Rules when keyword-engine supplied the content)
 - Optional: expand with detail after first sentence
 - Never bury the answer — AI assistants extract the first sentence
 
@@ -136,10 +148,14 @@ Required FAQ questions (minimum — add niche-specific ones):
 ## Schema markup — required per page type
 
 ### Organization JSON-LD — enhanced for AI visibility (homepage + about page)
+`knowsAbout[]` sources from **both** the homepage AND shop-page rows of `docs/keyword-map.md` (each row's Primary + Secondary Keywords) — never homepage alone. Falls back to the site's own primary + top secondary keywords plus product categories when no keyword-engine docs exist.
+
+**`@id` + `sameAs` disambiguation (low-cost hedge, same spirit as Speakable below — not a proven ranking lever, just cheap to get right since the fields are already being written).** `@id` gives this Organization node a stable internal identifier that other schema blocks on the site can carry alongside their own inline fields — e.g. an Article's `publisher` keeps its required `name`/`logo` inline (Google's Article rich-result check wants those present on the page, not a bare cross-page pointer) and additionally carries the same `"@id": "https://[domain]/#organization"`, so systems that stitch entities together by `@id` can tell it's the same Organization as the homepage's. Add a Wikidata and/or Wikipedia `sameAs` entry **only when the brand genuinely has one** — never create or claim one that doesn't exist; most small/new brands won't have either, and that's fine, the social `sameAs` entries below still apply.
 ```json
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://[domain]/#organization",
   "name": "[Site Name]",
   "url": "https://[domain]/",
   "logo": "https://[domain]/images/logo.webp",
@@ -147,9 +163,10 @@ Required FAQ questions (minimum — add niche-specific ones):
   "foundingDate": "[year or omit if unknown]",
   "areaServed": "[country or Worldwide]",
   "knowsAbout": [
-    "[primary keyword]",
-    "[secondary keyword 1]",
-    "[secondary keyword 2]",
+    "[homepage primary keyword]",
+    "[homepage secondary keyword 1]",
+    "[shop page primary keyword]",
+    "[shop page secondary keyword 1]",
     "[product category 1]"
   ],
   "sameAs": [
@@ -164,6 +181,7 @@ Required FAQ questions (minimum — add niche-specific ones):
   }
 }
 ```
+When the brand has a real Wikidata and/or Wikipedia entry, append its URL(s) to the `sameAs` array above alongside the social links — never add one that doesn't exist.
 
 ### Speakable JSON-LD (homepage + about page)
 Speakable is a **Google-only, still-beta** mechanism — limited to US/English users and news-article content. It does nothing on Alexa, Siri, or Bixby, and won't apply to most homepage/about-page use the way it's scoped here. Keep it as a zero-cost hedge, not a relied-upon lever.
@@ -190,7 +208,7 @@ Speakable is a **Google-only, still-beta** mechanism — limited to US/English u
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://[domain]/shop/?q={search_term_string}"
+      "urlTemplate": "https://[domain]/search/?q={search_term_string}"
     },
     "query-input": "required name=search_term_string"
   }
@@ -257,6 +275,8 @@ Google deprecated the FAQ rich result in 2026 — this markup no longer produces
 ```
 
 ### Article JSON-LD — enhanced (blog posts)
+
+**`author` default: Organization (shown below) — unless `docs/PROJECT.md`'s "Named content author" field (intake Section N) names a real person who actually writes or reviews the content.** When it does, swap to the `Person` variant underneath. **Never invent a named author** — a `Person` author is only ever as real as what the client confirmed at intake; absent that confirmation, Organization is correct, not a fallback to apologize for.
 ```json
 {
   "@context": "https://schema.org",
@@ -270,6 +290,7 @@ Google deprecated the FAQ rich result in 2026 — this markup no longer produces
     "url": "https://[domain]/"
   },
   "publisher": {
+    "@id": "https://[domain]/#organization",
     "@type": "Organization",
     "name": "[Site Name]",
     "logo": {"@type": "ImageObject", "url": "https://[domain]/images/logo.webp"}
@@ -280,6 +301,16 @@ Google deprecated the FAQ rich result in 2026 — this markup no longer produces
   "mentions": [{"@type": "Thing", "name": "[related topic]"}]
 }
 ```
+**`author` — Person variant** (only when a real named author was confirmed at intake). Everything else in the block above is unchanged — only `author` swaps:
+```json
+  "author": {
+    "@type": "Person",
+    "name": "[Author Name]",
+    "jobTitle": "[Role/credential, e.g. Founder]",
+    "sameAs": ["https://www.linkedin.com/in/[handle]"]
+  },
+```
+Drop `sameAs` entirely if no LinkedIn URL was given — never link to a guessed profile. The visible byline on the post (`pages.md` § Blog: "date + author") must show this same name — the rendered page and the schema must agree, the same rule `Breadcrumbs` already follows for `BreadcrumbList`.
 
 ### LocalBusiness JSON-LD (contact page — if physical location)
 ```json

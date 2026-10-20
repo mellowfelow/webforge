@@ -139,7 +139,8 @@ Proxy: ON (orange cloud)
 - [ ] All pages/ subdirectory pages
 - [ ] All images in /images/ as BOTH .avif and .webp (served via <picture>)
 - [ ] PROJECT.md
-- [ ] keyword-cluster.txt
+- [ ] keyword-map.md
+- [ ] blog-plan.md (plus faq-bank.md / product-gaps.md if keyword-engine produced them)
 
 ### Cloudflare config
 - [ ] Project created in Cloudflare Pages

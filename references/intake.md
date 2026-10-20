@@ -16,6 +16,7 @@ Never invent an answer. If something is missing, ask. If the client says "you ch
 ### A — Identity
 - Site / business name*
 - Tagline (or "create")
+- **Brand voice — one line** (or "choose"): how the brand should sound in its own copy — e.g. "warm and casual," "technical and precise," "premium and understated." Drives the tone-shift rule in `references/pages.md` § Writing quality — not a new field to track separately, just a short descriptor to reuse everywhere copy gets drafted.
 - **Domain — or "pending"** — pending is fully supported. `SITE.domain = 'DOMAIN.com'`; everything derives from it; connecting later = change one line, rebuild, deploy. **Never** promise a find-and-replace.
 - Logo + favicon (attach, or "create")
 - Brand colours (main + accent), or "choose"
@@ -65,6 +66,13 @@ If they ask for 2+ widgets: warn that each adds a blocking script and a CSP entr
 ### G — Optional pages
 Order tracking, customer accounts, wholesale, compare tool, finance calculator (each y/n)
 
+**Plus, if the catalog supports them (ask every client):**
+- **Brand pages (y/n)** — if yes and the site stocks 3+ brands, also build a **Brand Hub** aggregator page linking to each individual brand page; under 3 brands, individual brand pages only, no hub.
+- **Best Sellers / New Arrivals (y/n, each independent)** — a dedicated page per one selected, pulling from `PRODUCTS` (best-seller flag / most recent).
+- **Sale / Deals (y/n)** — a dedicated page listing products currently on sale (requires a sale-price field on `PRODUCTS`).
+
+These three are the conditional page types keyword-engine's Guarantee Flag system and cannibalisation checks are built around (`Active-Conditional`, the Best-Sellers/New-Arrivals four-way check, the Brand Hub vs individual-brand distinction) — say "no" to all three if the catalog doesn't support them; keyword-engine's logic degrades cleanly to "not in use."
+
 ### H — Compliance
 - Age gate (y/n + threshold), legal disclaimer, main language, cookie/GDPR notice
 
@@ -84,13 +92,17 @@ Record the authority in `docs/PROJECT.md`. Future sessions need to know *why*, o
 Verticals where this is usually non-empty: anything health/medical/supplement, financial/legal advice, alcohol/vape/cannabis, firearms/replicas, gambling, adult, prop/novelty currency, cosmetics with efficacy claims.
 
 ### I — Shop structure
+**First check whether a keyword-engine session already produced `docs/taxonomy-map.md` for this project.** If it has, use its category→subcategory tree (with top brands/products and confidence tags) as the starting answer instead of asking the client from scratch — present it for confirmation rather than re-deriving it. Otherwise, ask as below.
+
 A = Category → Subcategory → Product · B = Series/Collection → Product · C = Category → Brand → Model · D = custom
 Then: categories*, subcategories
 
 ### J — Keywords
-Primary keyword*, 10–20 secondary keywords. If they have real search-volume data (Semrush/Ahrefs/GSC), ask for it — it beats guessing. Flag anything unvalidated as unvalidated.
+**First check whether a keyword-engine session already produced `docs/keyword-map.md` for this project.** If it has, skip this section entirely — attach and read keyword-engine's docs instead (see "After intake" § Step 5). Otherwise, collect: Primary keyword*, 10–20 secondary keywords. If they have real search-volume data (Semrush/Ahrefs/GSC), ask for it — it beats guessing. Flag anything unvalidated as unvalidated.
 
 ### K — Initial products (6–12 for the homepage)
+**First check whether a keyword-engine session already produced `docs/starter-product-list.csv` for this project.** If it has, use its category/subcategory/product/brand/confidence rows as the starting answer instead of asking the client from scratch — present it for confirmation rather than re-deriving it (photos still need collecting as below regardless). Otherwise, ask as below.
+
 Per product: name, price, category, one-line description, badge (Popular / New / Best Value / Premium / Sale / none), **image(s)**.
 
 **Ask for photos this way — it determines how good the site looks:**
@@ -140,7 +152,9 @@ Ask plainly. **Both are first-class.** This is INDEPENDENT of the backend questi
 ### N — Brand authority facts (REAL only — collect, don't invent)
 Founding year, founding location / HQ, what makes them different, milestones (year: what happened), geographic footprint, and — **if they exist** — named individuals, awards, press, partnerships, stockists, reviews/ratings. **When migrating an existing site, its current reviews, ratings, awards and testimonials are real content — collect them (and their source) so they are preserved, not dropped.**
 
-> Never INVENT these — don't make up a statistic, award, or client name that does not exist. But always preserve the REAL ones the client has or that already exist on the site being migrated: a real fact omitted is a lost ranking signal; a fabricated one is a lie that outranks. Record real facts with their source.
+**If a named individual exists, ask one more thing:** does any of them actually write or personally review the blog content (a founder, an in-house expert), as opposed to the content just being published under the brand's name? If yes, collect their name, role/credential, and a LinkedIn URL if they have one — this is the only input Article schema's optional `Person`-author path (`seo.md`/`ai-visibility.md`) needs. If no such person exists, say so plainly — Article schema stays Organization-authored, which is the correct default, not a lesser one.
+
+> Never INVENT these — don't make up a statistic, award, or client name that does not exist. But always preserve the REAL ones the client has or that already exist on the site being migrated: a real fact omitted is a lost ranking signal; a fabricated one is a lie that outranks. Record real facts with their source. **The same rule applies to the named author above — never attribute content to a real person who didn't actually write/review it, and never invent one who doesn't exist.**
 
 If a client has no awards or press, say the site will lean on what is real — founding story, specialism, geography, product depth.
 
@@ -189,23 +203,28 @@ Reused verbatim in: homepage hero subtext, homepage authority section, About ope
 
 **Step 2 — Confirm deploy target + form provider + reply portal.** State the consequences plainly (see M, L, P). Default: Vercel + smtp + reply portal **Yes** (build it unless declined).
 
-**Step 3 — Keyword strategy.** Cluster by intent. Show the assignment. Wait for confirmation.
+**Step 3 — Keyword strategy.** **Skip if Section J was skipped** (an existing keyword-engine session already covers this) — use its docs as-is. Otherwise: cluster by intent. Show the assignment. Wait for confirmation.
 
 **Step 4 — Content strategy.** Pillar → cluster → supporting. Quick wins (low KD) first. 12-week calendar.
 
-**Step 5 — Generate the three docs.** Separate files, separate jobs — never merge:
+**Step 5 — Generate the docs.** Separate files, separate jobs — never merge:
 
 | File | Where | Job |
 |---|---|---|
 | `CLAUDE.md` | repo root | Rules only. **<120 lines** — auto-read every Claude Code session; length costs tokens every time. |
 | `docs/PROJECT.md` | `docs/` | The full record. |
-| `docs/keyword-map.md` | `docs/` | Keyword → page map, unused clusters, exclusions. |
+| `docs/taxonomy-map.md` | `docs/` | Category→subcategory tree, top brands/products, price ranges — only if keyword-engine's Phase 0 ran. Answers Section I. |
+| `docs/starter-product-list.csv` | `docs/` | Flat category/subcategory/product/brand/confidence list — only if keyword-engine's Phase 0 ran. Answers Section K. |
+| `docs/keyword-map.md` | `docs/` | Keyword → page map, exclusions. Page-level targets only — no blog queue here. |
+| `docs/blog-plan.md` | `docs/` | The blog build queue — `Pending`/`Built` Status per post. Always generated, whether or not keyword-engine ran. |
+| `docs/faq-bank.md` | `docs/` | FAQ content + schema — only if keyword-engine ran. |
+| `docs/product-gaps.md` | `docs/` | Product/category page gaps — only if keyword-engine ran. |
 
 **`docs/` never publishes.** Not in `public/`, not in the deploy output. The crosscheck fails if it leaks (B4).
 
 **Step 6 — Project setup card.**
 - **Vercel:** the repo is the project. `CLAUDE.md` + `docs/` travel with the code. Work in Claude Code, push to deploy.
-- **Cloudflare:** Claude Project `[Site Name] — [domain or PENDING]`, attach `docs/PROJECT.md` + `docs/keyword-map.md`.
+- **Cloudflare:** Claude Project `[Site Name] — [domain or PENDING]`, attach `docs/PROJECT.md` + `docs/keyword-map.md` + `docs/blog-plan.md` (+ `docs/taxonomy-map.md` + `docs/starter-product-list.csv` + `docs/faq-bank.md` + `docs/product-gaps.md` if keyword-engine ran).
 
 Then: "Ready to build? Say 'build the site'."
 
@@ -238,6 +257,7 @@ Min order · free-ship threshold · flat ship · discount + code · payment meth
 ## Brand authority facts (REAL only — preserve, don't invent)
 Founded [year] in [place] · differentiators · milestones · shipping coverage
 Awards/press/partners/reviews: [real ones + source (incl. migrated from existing site), or "none"]
+Named content author: [name, role/credential, LinkedIn URL] — or "none, Article schema stays Organization-authored"
 
 ## Compliance
 Age gate · disclaimer · GDPR
@@ -268,6 +288,8 @@ ADMIN_PASSCODE set · Storage configured (Upstash Redis / Cloudflare KV) · What
 
 ## docs/keyword-map.md template
 
+**Page-level keyword targets only — the blog queue lives in `blog-plan.md`, never here.** (When a keyword-engine session runs, it produces a far richer version of this file — Guarantee Flag, Journey Stage, FAQ Schema, Entity Coverage, etc. per page; this is WebForge's own lightweight fallback for when no keyword-engine session exists.)
+
 ```markdown
 # [Site Name] — keyword map
 
@@ -277,12 +299,23 @@ PRIMARY: [kw] (vol, KD) → /
 /product/[slug] : [kws]
 /blog/[slug] : [kw] + cluster
 
-## Published posts
-- [slug] — [kw]
-
-## Unused clusters (next posts, priority order)
-1. [topic] — [kw] (vol, KD)
-
 ## Excluded (never target)
 [kw] — [why: wrong intent / illegal framing / competitor brand]
+```
+
+## docs/blog-plan.md template
+
+**The blog build queue — always generated, whether or not keyword-engine ran.** Take the next `Pending` row for each new post; flip it to `Built` once published. (A keyword-engine session produces a far richer version — full briefs, schema types, a 12-week calendar; this is WebForge's own lightweight fallback.)
+
+```markdown
+# [Site Name] — blog plan
+
+## Build queue
+
+| Post Title | Primary Keyword | Status |
+|---|---|---|
+| [title] | [kw] (vol, KD) | Pending |
+
+## Published posts
+- [slug] — [kw]
 ```

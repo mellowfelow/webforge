@@ -42,7 +42,7 @@ These are absolute. They come from real builds that broke and were fixed. Never 
 9. **The domain lives in exactly ONE place: `SITE.domain` in `src/config/site.js`.** Every domain-bearing file (`robots.txt`, `llms.txt`, `sitemap`, all `.well-known/*`, `vercel.json`, canonicals, OG tags) is GENERATED from it at build time by `scripts/gen-agent-files.mjs`. Never hand-write a domain into a file. Never instruct the user to find-and-replace a domain across files. `DOMAIN.com` is permitted while a domain is pending; the crosscheck FAILS a production deploy that still contains it.
 10. **Never claim a capability the site does not have.** If `SearchAction` schema is emitted, a real search must exist. If `mcp/server-card.json` advertises tools, they must resolve on that target. If `api-catalog` lists endpoints, they must return. Static targets declare only what static files can honour.
 11. **Compliance language is testable, not remembered.** If a vertical has banned words or required framings (Intake Section H), they go in `CLAUDE.md` AND are scanned across the entire build output by the crosscheck. A violation is a ship-stopper. See "Compliance guardrails".
-12. **Strategy docs never ship to the public web.** `docs/PROJECT.md` and `docs/keyword-map.md` live in `docs/` — never in `public/`, never in the deploy output. A publicly downloadable keyword strategy hands competitors the whole plan.
+12. **Strategy docs never ship to the public web.** `docs/PROJECT.md`, `docs/keyword-map.md`, `docs/blog-plan.md`, and (when keyword-engine ran) `docs/taxonomy-map.md` + `docs/starter-product-list.csv` + `docs/faq-bank.md` + `docs/product-gaps.md` all live in `docs/` — never in `public/`, never in the deploy output. A publicly downloadable keyword strategy hands competitors the whole plan.
 13. **Agents may draft, humans complete.** Any live agent endpoint is read-only plus order-draft. Never expose payment capture, never accept card data, never mutate state from an agent call. See "Agent-Ready — the LIVE layer".
 8. **Backend rules (only when backend = Yes — see Intake Section O).** The backend is OPTIONAL and gated by intake; never add it unless requested.
    - **Two-layer model is sacred.** Claude owns the template layer (structure, design, defaults, the editable-field manifest) shipped in the ZIP. The client owns the content layer (field values, posts, products, media, SEO overrides) stored in D1 + R2. At render the override wins; if none exists, Claude's default shows. Never collapse these layers.
@@ -97,11 +97,11 @@ Identify which mode applies before doing anything else.
 
 **Mode 1 — Intake & Strategy**
 Trigger: "build me a site", "new client", "new project", "new site", or user pastes full requirements.
-Action: Intake (includes **Section M — deploy target** and **Section O — Client Backend**) → brand entity statement → keyword strategy → content strategy → `CLAUDE.md` + `docs/PROJECT.md` + `docs/keyword-map.md` → confirm with user → hand off to Mode 3.
+Action: Intake (includes **Section M — deploy target** and **Section O — Client Backend**) → check for an existing keyword-engine session (Step 0) → brand entity statement → keyword strategy → content strategy → `CLAUDE.md` + `docs/PROJECT.md` + `docs/keyword-map.md` + `docs/blog-plan.md` → confirm with user → hand off to Mode 3.
 
 **Mode 2 — Site Update**
 Trigger: existing site + "add", "update", "change", "new page", "new product", "new blog post", "fix".
-Action: Read PROJECT.md from Project context. Make targeted changes, propagate ripple effects (sitemap, internal links, schema counts, llms.txt, agent-ready files). Run full-site audit. Deliver complete deploy-ready ZIP.
+Action: Read PROJECT.md from Project context. **New blog post:** take the next `Pending` row from `docs/blog-plan.md`, flip it to `Built` once delivered. Make targeted changes, propagate ripple effects (sitemap, internal links, schema counts, llms.txt, agent-ready files). Run full-site audit. Deliver complete deploy-ready ZIP.
 **Backend sites:** if PROJECT.md shows backend = Yes, new blog posts / products are delivered as **import files** for the client to upload in `/cms → Import` — NOT hardcoded into HTML.
 
 **Mode 3 — Full Build**
@@ -117,6 +117,10 @@ Action: Run the requested audit (or all four). Produce a prioritized report with
 ---
 
 ## MODE 1 — Intake & Strategy
+
+**Step 0 — Check for an existing keyword-engine session.** Before Section J or Step 3 below, check whether `docs/keyword-map.md` (and its siblings `blog-plan.md`/`faq-bank.md`/`product-gaps.md`) already exist for this project — keyword-engine may have already run. **If they exist, they win:** skip Section J's own keyword collection and skip Step 3's own clustering entirely; attach and read keyword-engine's docs instead (see the doc table in "After intake is complete" → Step 5, and `references/intake.md` § J). Only run Section J + Step 3 as WebForge's own lightweight fallback when no keyword-engine docs exist for this project.
+
+**Same check, before Sections I and K.** Also check whether `docs/taxonomy-map.md` / `docs/starter-product-list.csv` exist — produced by keyword-engine's Phase 0, a separate (and separately optional) step from the keyword docs above. Unlike Section J, these never skip the section outright — they **pre-fill** it: present the taxonomy tree / starter product list for the client to confirm or adjust, instead of asking from scratch. Section K still collects photos separately regardless, since Phase 0 never produces those.
 
 ### Entry Path A — "Build me a site"
 Present intake sections one at a time. Wait for answers before the next section. Do not present all at once.
@@ -137,17 +141,17 @@ Read `references/intake.md` for the full intake form. Collect ALL of:
   - **Widget channels** (inject a third-party script — costs performance, needs a CSP entry, one only): Tawk.to (property/widget ID), Crisp (website ID), JivoChat (widget ID).
   - **Rule:** unlimited link channels; **at most ONE widget channel**. If the user asks for two or more widgets, warn that each adds a blocking third-party script and ask them to choose one.
   - Rendered as a single floating button that expands to the enabled channels. If exactly one link channel and no widget, render it as a direct button (no expander).
-- **G — Optional Pages:** Tracking, account, wholesale, compare, finance calculator
+- **G — Optional Pages:** Tracking, account, wholesale, compare, finance calculator. **Plus, if the catalog supports them:** Brand pages (y/n — 3+ brands also triggers a Brand Hub aggregator; under 3, individual pages only), Best Sellers (y/n), New Arrivals (y/n), Sale/Deals (y/n). These four are the conditional page types keyword-engine's Guarantee Flag system is built around — say no to all if the catalog doesn't support them.
 - **H — Compliance:** Age gate, disclaimer, locale, GDPR. **Plus language constraints (ask every client):** banned terms, required framings, prohibited claims, and the authority behind each (regulator / platform ad policy / statute). These become a `CLAUDE.md` block and a blocking crosscheck scan — see "Compliance guardrails".
-- **I — Shop Structure:** Structure type A/B/C/D, categories, subcategories
-- **J — Keywords:** Primary keyword, 10-20 secondary keywords
-- **K — Initial Products:** featured products with name, price, category, description, badge, **image(s)**. Ask for: **2000px+ on a plain white background, product filling the frame, consistent angle and lighting.** Explain why: white-background photos blend seamlessly into the white product frame and need no processing. Photos with their own backgrounds still work but will letterbox. Multiple images per product supported (first is primary). Images optional — placeholders are generated if absent.
+- **I — Shop Structure:** Structure type A/B/C/D, categories, subcategories. **First check whether a keyword-engine session already produced `docs/taxonomy-map.md` for this project** — if so, present its category→subcategory tree for confirmation instead of asking from scratch.
+- **J — Keywords:** Primary keyword, 10-20 secondary keywords. **Skip this section if a keyword-engine session already produced `docs/keyword-map.md` for this project (see Step 0 above)** — attach its docs instead of collecting this.
+- **K — Initial Products:** featured products with name, price, category, description, badge, **image(s)**. **First check whether a keyword-engine session already produced `docs/starter-product-list.csv` for this project** — if so, present its category/subcategory/product/brand/confidence rows for confirmation instead of asking from scratch (photos are still collected separately either way). Ask for: **2000px+ on a plain white background, product filling the frame, consistent angle and lighting.** Explain why: white-background photos blend seamlessly into the white product frame and need no processing. Photos with their own backgrounds still work but will letterbox. Multiple images per product supported (first is primary). Images optional — placeholders are generated if absent.
 - **L — Forms / email transport:** Two providers — **Web3Forms is retired:**
   - `smtp` — **default, both targets.** Branded HTML emails. Vercel: nodemailer (`lib/mailer.js`). Cloudflare: a raw-socket SMTP client run from a Pages Function (`functions/_shared/mailer.js`) — same env vars, same behaviour. Requires `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, and optionally `SMTP_FROM`. Without them, `sendMail()` returns `{sent:false}` — site still works via WhatsApp/chat fallback.
   - `resend` — Vercel only, opt-in, first-party sending, **requires a verified domain**.
   Collect: destination emails (contact/order/wholesale — each optionally its own env var, `CONTACT_EMAIL`/`ORDER_EMAIL`/`WHOLESALE_EMAIL`, falling back to a config default), and the SMTP credentials or "pending". Optionally: Cloudflare Turnstile site key for spam protection. See `references/forms.md`.
 - **M — Hosting / deploy target (ask plainly, both are first-class):** **Vercel (default)** — GitHub repo, auto-deploy on push, real API routes, higher agent ceiling, `resend` available once a domain is live. **Cloudflare Pages** — ZIP upload, no Git needed, static, ~79 agent cap (free-plan ceiling, not a defect). **Choosing Cloudflare does NOT mean adding a backend** — that is a separate question (Section O) and defaults to No. Only the reverse is forced: backend = Yes → Cloudflare. See "Deploy targets" for the full matrix.
-- **N — Brand authority facts (for AI visibility, truthful only):** founding year, founding location/HQ, what makes them different, milestones, geographic footprint, real named individuals/awards/partners IF the client actually has them (never invented)
+- **N — Brand authority facts (for AI visibility, truthful only):** founding year, founding location/HQ, what makes them different, milestones, geographic footprint, real named individuals/awards/partners IF the client actually has them (never invented). **If a named individual actually writes/reviews the blog content**, also collect name/role/LinkedIn — feeds Article schema's optional `Person`-author path (`references/seo.md`); absent that, Article stays Organization-authored.
 - **O — Client Backend (OPTIONAL, the opt-in gate):** Backend Yes/No. If **No** → build a pure static site (skip all backend work). If **Yes** → collect: which collections the client manages (pages text, blog, products, custom types), admin user email(s), whether they edit SEO details (focus keyword + meta + SEO Score panel), media uploads Y/N, and edits-go-live mode (instant vs publish). Full sub-form in `references/intake.md` → Section O.
 
 > **Gate rule:** Section O is asked for every new site, but a backend is added ONLY when the user explicitly says Yes. **Default is No.** A "No" here is not a lesser build — most sites should not have a backend. It is only worth it when the client genuinely wants to edit content themselves without you.
@@ -185,23 +189,28 @@ Goes into: homepage hero subtext, homepage "About [Brand]" authority section, ab
 
 **Step 2 — Form provider + deploy target + reply portal confirmation.** Defaults: Vercel + SMTP + Reply Portal **Yes**. State the consequences plainly: SMTP gives branded first-party emails (Zoho/Gmail/any SMTP) on either target — needs credentials in the platform dashboard, site still works via WhatsApp/chat fallback without them; `resend` gives first-party sending on Vercel but needs a verified domain. Reply Portal is on by default on both targets now — it adds `/admin/` order/enquiry dashboard + the SMTP requirement; only turn it off if the client says they don't want it. If backend = Yes, target is Cloudflare Pages. Confirm with user.
 
-**Step 3 — Keyword strategy.** Cluster primary + secondary keywords, assign by intent. Show assignment, wait for confirmation.
+**Step 3 — Keyword strategy.** **Skip this step if Step 0 found an existing keyword-engine session** — use its `keyword-map.md`/`blog-plan.md`/`faq-bank.md`/`product-gaps.md` as-is instead. Otherwise (no keyword-engine docs for this project): cluster primary + secondary keywords, assign by intent. Show assignment, wait for confirmation.
 
 **Step 4 — Content strategy.** Map pillar → cluster → supporting. Quick wins first. 12-week calendar.
 
-**Step 5 — Generate the three docs** (templates in `references/intake.md`). These are SEPARATE FILES WITH SEPARATE JOBS — never merge them:
+**Step 5 — Generate the docs** (templates in `references/intake.md`). `CLAUDE.md` + `docs/PROJECT.md` + `docs/keyword-map.md` + `docs/blog-plan.md` always; `docs/taxonomy-map.md` + `docs/starter-product-list.csv` + `docs/faq-bank.md` + `docs/product-gaps.md` only when a keyword-engine session produced them. These are SEPARATE FILES WITH SEPARATE JOBS — never merge them:
 
 | File | Location | Job | Read by |
 |---|---|---|---|
 | `CLAUDE.md` | repo root | **Rules only.** Compliance language, architecture note, build/deploy commands, live placeholders, verified brand facts, "never invent facts". Keep under ~120 lines — it is auto-read on EVERY Claude Code session, so length costs tokens every time. | Claude Code, automatically, every session |
 | `docs/PROJECT.md` | `docs/` | **The full record.** All intake data, brand entity statement, keyword strategy, AI visibility plan, brand authority facts, form provider, deploy target, GSC status, backend block. | On demand |
-| `docs/keyword-map.md` | `docs/` | **Keyword → page assignments**, unused blog clusters, exclusions. | When writing content |
+| `docs/taxonomy-map.md` (if keyword-engine's Phase 0 ran) | `docs/` | Category→subcategory tree, top brands/products with confidence tags, price ranges. Answers intake Section I instead of asking from scratch. | At intake, Section I |
+| `docs/starter-product-list.csv` (if keyword-engine's Phase 0 ran) | `docs/` | Flat category/subcategory/product/brand/confidence list. Answers intake Section K instead of asking from scratch. | At intake, Section K |
+| `docs/keyword-map.md` | `docs/` | **Keyword → page assignments**, exclusions. Page-level keyword targets only — the blog queue lives in `blog-plan.md`, not here. | When writing content |
+| `docs/blog-plan.md` | `docs/` | **The blog build queue.** Every planned post with a `Pending`/`Built` Status field — take the next `Pending` row for each new post, flip it to `Built` once published. Generated by WebForge's own Step 4 when no keyword-engine session ran; generated more richly by keyword-engine (full briefs, schema, 12-week calendar) when it did. | When writing a new blog post |
+| `docs/faq-bank.md` (if keyword-engine ran) | `docs/` | Homepage + FAQ-page question content, pre-written answers, schema blocks. | When building the FAQ section/page |
+| `docs/product-gaps.md` (if keyword-engine ran) | `docs/` | Which product/category pages to create, priority-ranked. | When deciding new product/category pages |
 
 **`docs/` is never published.** It is excluded from `public/` and from the deploy output. (Formerly `keyword-cluster.txt` shipped in the site root — that leaked the entire keyword strategy to anyone who guessed the URL. Fixed.)
 
 **Step 6 — Project setup card.** Working style depends on target:
 - **Vercel:** the repo IS the project. `CLAUDE.md` + `docs/` travel with the code; work in Claude Code; push to deploy.
-- **Cloudflare:** Claude Project named `[Site Name] — [domain or PENDING]`; attach `docs/PROJECT.md` + `docs/keyword-map.md`.
+- **Cloudflare:** Claude Project named `[Site Name] — [domain or PENDING]`; attach `docs/PROJECT.md` + `docs/keyword-map.md` + `docs/blog-plan.md` (+ `docs/taxonomy-map.md` + `docs/starter-product-list.csv` + `docs/faq-bank.md` + `docs/product-gaps.md` if keyword-engine produced them).
 
 Then: "Ready to build? Say 'build the site'." 
 
@@ -268,6 +277,11 @@ Run the complete **Pre-ship crosscheck** across the ENTIRE site, including the a
 │   │   ├── shop/page.jsx
 │   │   ├── shop/[cat]/page.jsx
 │   │   ├── product/[slug]/page.jsx
+│   │   ├── brands/page.jsx          ← Brand Hub, only if 3+ brands stocked
+│   │   ├── brands/[slug]/page.jsx   ← individual brand pages, if Section G enabled
+│   │   ├── best-sellers/page.jsx    ← if Section G enabled
+│   │   ├── new-arrivals/page.jsx    ← if Section G enabled
+│   │   ├── sale/page.jsx            ← if Section G enabled
 │   │   ├── blog/page.jsx
 │   │   ├── blog/[slug]/page.jsx
 │   │   ├── search/page.jsx     ← real search (see "Search")
@@ -353,7 +367,10 @@ Run the complete **Pre-ship crosscheck** across the ENTIRE site, including the a
 │   └── crosscheck.mjs         ← pre-ship crosscheck, exits non-zero on failure
 ├── docs/                      ← NEVER deployed
 │   ├── PROJECT.md
-│   └── keyword-map.md
+│   ├── keyword-map.md
+│   ├── blog-plan.md
+│   ├── faq-bank.md            ← only if a keyword-engine session ran
+│   └── product-gaps.md        ← only if a keyword-engine session ran
 └── functions/                 ← Cloudflare backend only (backend = Yes)
 ```
 
@@ -487,7 +504,7 @@ Always: correct `width`/`height` (or `next/image` intrinsic sizing) matching the
 **AI Visibility (every page; full detail in `references/ai-visibility.md`):**
 - Brand entity statement in homepage hero + a visible "About [Brand]" authority section.
 - Store/Organization JSON-LD: `@type ["Store","Organization"]`, `description`, `foundingDate`, `foundingLocation`, `address`, `areaServed`, `numberOfItems`, `knowsAbout[]`, `priceRange`, `sameAs[]`, `brand`, `makesOffer` as AggregateOffer.
-- FAQPage schema on homepage + FAQ page; answers in 40-60 word direct-answer format.
+- FAQPage schema on homepage + FAQ page; direct-answer format — homepage FAQ 40–55 words, FAQ page up to 65 words, never exceeding 65.
 - About page entity-rich (>700 words): founding story, milestones timeline, differentiation grid, footprint, contact.
 - `llms.txt` at root: brand summary, "Brand Facts (cite these)", categories, differentiation, milestones, key pages, and explicit citation guidance.
 - `robots.txt`: explicit Allow for all major AI crawlers.
@@ -803,15 +820,19 @@ If PROJECT.md present: read it (note backend = Yes/No). Else ask: brand+domain, 
 - **JSON-LD validity:** parse every block; flag bare Product on non-product pages, BreadcrumbList comma bug.
 - **Usability & cognitive load:** run the Nielsen-heuristics + cognitive-load + persona pass in `references/usability-audit.md` on home, shop/category, product, and cart/order; produces the `Usability: /100` row below.
 - **Visual design quality:** re-run the full `references/design-quality.md` check against the *live* site, not just at build time — grid uniformity, hero composition, section rhythm, colour/type polish, motion safety, imagery consistency, and the rule-8 dated-AI-tells scan. A technical audit of an already-built site re-verifies this, it isn't only checked the next time something gets built or fixed.
+- **Prose-quality sibling check (`pages.md` § Writing quality):** sentence rhythm actually varies across a section (not every sentence the same length/shape), and tone shifts by section purpose (spec plain, CTA persuasive, authority narrative) — the content-side counterpart to the rule-8 visual-tells scan above.
+- **Icon library:** only one icon library's SVGs used site-wide (`references/nextjs.md` default: Lucide) — flag any mixing with a second library or a hand-drawn inline `<svg>` duplicating an icon the library already has.
 
 **AUDIT B — SEO audit** ("audit", "check SEO", "fix my SEO")
 - Meta titles 50-60, unique, keyworded. Meta descriptions in band, unique, synced to og/twitter.
 - Exactly one H1 per page with keyword; heading hierarchy; keyworded H2s.
 - Image alt text everywhere; emails entity-encoded (no plaintext, incl. JSON-LD).
-- OG + Twitter complete; canonical present.
+- OG + Twitter complete; canonical present. **`og:image` specifically is 1200×630 (or correctly cropped toward it from the page's hero/thumbnail/gallery image per `references/seo.md` § og:image) — not just present.**
 - Schema correct per page type, validated, required props.
-- Internal links: no orphans/dead-ends, descriptive anchors.
+- Internal links: no orphans/dead-ends, descriptive anchors. **Journey-Stage links present and bidirectional** where `keyword-map.md` assigns a Journey Stage (`references/pages.md` § Journey-Stage internal linking) — a blog post links forward to the Purchase-stage page it funnels toward, and that page links back.
+- **Stale-intake drift:** if `docs/taxonomy-map.md`/`docs/starter-product-list.csv` exist for this project but Section I/K's actual answers don't resemble them, flag it — intake should have pre-filled from these, not re-derived from scratch.
 - Content freshness: lastmod + og:updated_time + revalidation.
+- **Stale-content flag:** any blog post older than 12 months with no `dateModified` update since — flag for a human review pass, not an automatic rewrite. Check specifically for the kind of claim that silently rots: a bare year ("in 2024, the best..."), a price mention, a "currently"/"latest"/"new" claim, a stat with no re-check. This mirrors keyword-engine's own New Arrivals year-stamp staleness logic — a page can be technically correct and still read as out of date.
 - Broken-link scan: every internal `href` resolves to an existing page.
 - Duplicate body content: product descriptions and category intros are unique (hash-compare) — flag near-duplicates.
 - Accessibility (static subset): alt text, bound labels, one-H1 + no skipped levels, landmarks, skip-link, no positive tabindex. Full AA (contrast + keyboard) is AUDIT F.
@@ -819,8 +840,10 @@ If PROJECT.md present: read it (note backend = Yes/No). Else ask: brand+domain, 
 **AUDIT C — AI-Visibility audit** ("AI visibility check", "ai seo", "GEO/AEO")
 - Brand entity statement on homepage; visible "About [Brand]" authority section.
 - **GEO evidence-backed tactics present** (direct quotations, cited statistics, inline source citations) in blog/authority-section copy — not just comparison language. See `references/ai-visibility.md` GEO section.
-- Store/Organization JSON-LD has description, foundingDate, foundingLocation, address, areaServed, numberOfItems, knowsAbout, priceRange, sameAs, brand, AggregateOffer.
-- FAQPage schema on homepage + FAQ page; direct-answer format.
+- Store/Organization JSON-LD has description, foundingDate, foundingLocation, address, areaServed, numberOfItems, knowsAbout, priceRange, sameAs, brand, AggregateOffer. **`@id` present on the Organization node and consistent (same value) everywhere it's referenced (e.g. Article `publisher`); Wikidata/Wikipedia `sameAs` present if the brand actually has one** (`references/seo.md` § Organization JSON-LD).
+- FAQPage schema on homepage + FAQ page; direct-answer format. **Blog H2 sections also answer their own heading in the first sentence** (`references/pages.md` § Blog) — not just the dedicated FAQ content.
+- **Comparison/spec/step-by-step blog content renders as a real `<table>`/`<ul>`/`<ol>`**, not a prose paragraph describing the same thing (`references/pages.md` § Blog).
+- **Article `author` matches intake:** if `docs/PROJECT.md` names a real content author, Article schema uses `Person` (not `Organization`) and the visible byline matches the schema's name exactly; if no named author was confirmed, Article stays Organization-authored — either is correct, but they must agree with what intake actually recorded.
 - About page >700 words, milestones timeline, differentiation grid, footprint.
 - llms.txt present with brand facts + citation guidance; robots AI-allows present.
 - Brand name consistent everywhere.
@@ -1758,7 +1781,7 @@ Every reference is current as of v11.1 (seo.md, vercel.md, and cloudflare.md upd
 `CLAUDE.md` + `docs/` live in the repo and travel with the code. Work in Claude Code; it auto-reads `CLAUDE.md` every session. Loop: edit `src/config/site.js` → `npm run build` → `npm run crosscheck` → commit → push → Vercel deploys. No ZIP, no upload.
 
 **Cloudflare sites — Claude Project.**
-Name: `[Site Name] — [domain or PENDING]`. Attach `docs/PROJECT.md` + `docs/keyword-map.md` (never in the deploy output). Project instructions: "This is the [Site Name] website project. Always read PROJECT.md before any task. keyword-map.md contains all blog topics — use the next unused cluster for each new post. If PROJECT.md shows Backend = Yes, deliver new blog/product content as *-import.json import files (not hardcoded HTML), and read references/backend.md."
+Name: `[Site Name] — [domain or PENDING]`. Attach `docs/PROJECT.md` + `docs/keyword-map.md` + `docs/blog-plan.md` (+ `docs/taxonomy-map.md` + `docs/starter-product-list.csv` + `docs/faq-bank.md` + `docs/product-gaps.md` if keyword-engine produced them) — never in the deploy output. Project instructions: "This is the [Site Name] website project. Always read PROJECT.md before any task. keyword-map.md contains page-level keyword targets; blog-plan.md contains the blog build queue — use the next `Pending` row for each new post, flip it to `Built` once published. If taxonomy-map.md/starter-product-list.csv exist, they already answered the shop-structure/initial-products intake sections — don't re-derive them. If PROJECT.md shows Backend = Yes, deliver new blog/product content as *-import.json import files (not hardcoded HTML), and read references/backend.md."
 
 **Mode 2 rule:** the docs are in context — read them directly, never ask the user to paste.
 

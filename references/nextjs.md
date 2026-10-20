@@ -19,12 +19,13 @@ export const SITE = {
   founded: '2022', foundedPlace: 'Sydney, Australia',
   gscCode: '…', indexNowKey: '…',
   payments: ['…'],
+  author: null,                      // or { name, jobTitle, linkedin } — only when intake Section N named a real content author; null → blog byline shows SITE.brand, Article schema stays Organization-authored
 }
 export const FORMS = { provider: 'smtp', smtpFrom: '…', resendFrom: '', turnstileSiteKey: '', destinations: { contact: '', order: '', wholesale: '' } }
 export const CHAT   = { channels: [{ type: 'whatsapp', value: '61400000000' }] }
 export const CATEGORIES = [{ slug, name, kw, desc }]
 export const PRODUCTS   = [{ slug, name, price, cat, badge, short, desc, images: [] }]
-export const POSTS      = [{ slug, title, date, kw, excerpt, body: [['h2','…'],['p','…']] }]
+export const POSTS      = [{ slug, title, date, kw, excerpt, body: [['h2','…'],['p','…'],['ul',['…','…']],['ol',['…','…']],['table',{headers:['…'],rows:[['…']]}]] }]
 export const FAQS       = [{ q, a }]
 ```
 
@@ -54,12 +55,13 @@ export async function generateMetadata({ params }) {
     title: `${p.name} | ${SITE.brand}`.slice(0, 60),
     description: p.short.slice(0, 158),
     alternates: { canonical: url },
-    openGraph: { title: p.name, description: p.short, url, images: [`${SITE.url}/images/${p.images[0]}`], type: 'website' },
+    openGraph: { title: p.name, description: p.short, url, images: [`${SITE.url}/images/og/${p.slug}.jpg`], type: 'website' },
     twitter: { card: 'summary_large_image' },
   }
 }
 ```
 - **Titles ≤60 chars. Descriptions 110–158.** The crosscheck enforces both.
+- **`openGraph.images` is a dedicated 1200×630 crop, never the raw product/category/hero image passed through unsized.** `images/og/<slug>.jpg` — generated once per key page by cropping that page's own hero/thumbnail (see `references/seo.md` → "og:image — derivation and sizing"), not `p.images[0]`'s native product-card aspect.
 - Thank-you pages: `robots: { index: false, follow: true }`.
 - `metadataBase: new URL(SITE.url)` in the root layout so relative OG images resolve.
 
@@ -144,6 +146,10 @@ Cart lives in `localStorage` under `<brand>-cart`, with a custom `cart-change` e
 - `ChatHub` — client; renders `CHAT.channels`
 - `Breadcrumbs` — server; mirrors the `BreadcrumbList` schema exactly (visible and structured must agree)
 - `SmartImage` — server; renders `next/image` when `SITE.target==='vercel'`, else a `<picture>` (AVIF+WebP). All product/category/hero images go through it — never a raw `<img>`.
+
+## Icon library — one per site, never mixed
+
+**Default: `lucide-react`.** Tree-shakeable (each icon is its own import, no bundle bloat), covers the full range of nav/UI/feature icons a build needs, and works identically on both targets (pure SVG components, no runtime dependency). Import icons directly (`import { ShoppingCart } from 'lucide-react'`) — never hand-draw an inline `<svg>` for something the library already has, and never load a second icon library (Heroicons, Phosphor, Feather, etc.) alongside it on the same site, even for "just one icon" the first library happens to lack — pick the closest equivalent from the same library instead, or fall back to the image-sourcing skill's icon-set rule (one open-source library for the whole site) if a project genuinely has a reason to diverge. The image-sourcing skill explicitly never sources or generates icons itself and defers this choice to the build — this is that choice, made once here so it doesn't get decided ad hoc per project.
 
 ## Traps
 

@@ -47,7 +47,7 @@ These tactics help a smaller/newer site's content disproportionately *more* than
 Optimizing to appear as a direct answer in Google AI Overviews, ChatGPT, and Perplexity when users ask questions in the niche.
 
 **What to build:**
-- FAQ content written in direct-answer format: question as H2/H3, answer in first sentence (40-60 words), expand after
+- FAQ content written in direct-answer format: question as H2/H3, answer in first sentence, expand after. **Word band (matches keyword-engine's `content-planning.md` Answer Rules when keyword-engine supplied the content): homepage FAQ 40–55 words, dedicated FAQ page up to 65 words — never exceed 65 in any answer.**
 - "What is [Brand]?" question MUST appear on homepage FAQ section AND FAQ page
 - "Where does [Brand] ship?" question on FAQ page — clear geographic answer
 - "Is [Brand] legit/trusted?" question — answer with trust signals
@@ -57,7 +57,7 @@ Optimizing to appear as a direct answer in Google AI Overviews, ChatGPT, and Per
 **Build checklist:**
 - [ ] FAQ page has minimum 8 questions in direct-answer format
 - [ ] Homepage FAQ section has minimum 4 questions including "What is [Brand]?"
-- [ ] Every FAQ answer: direct answer in first sentence, 40-60 words ideal
+- [ ] Every FAQ answer: direct answer in first sentence — homepage FAQ 40–55 words, FAQ page up to 65 words, never exceeding 65
 - [ ] Questions cover: what the brand is, shipping, payments, returns, product quality, ordering process
 - [ ] FAQPage JSON-LD on both FAQ page and homepage
 
@@ -86,14 +86,14 @@ Making sure when someone asks an AI "recommend a [product type] brand", the bran
 Building content that covers a topic so thoroughly that both Google AND AI systems recognise the brand as an authority.
 
 **What to build:**
-- Blog content that covers every major question in the niche (use keyword-cluster.txt)
+- Blog content that covers every major question in the niche (use `blog-plan.md`'s topic-cluster field per post)
 - Topic clusters: each pillar topic has a hub page + 3-5 cluster articles all interlinked
 - Internal links between related content using descriptive, keyword-rich anchor text
 - Glossary or definitions section if the niche has technical terminology
 - Content depth: not just keywords but comprehensive topic coverage
 
 **Build checklist:**
-- [ ] keyword-cluster.txt organizes all remaining keywords into topic clusters with content type and URL
+- [ ] `blog-plan.md` organizes all posts into topic clusters, each with its content type and URL
 - [ ] Blog index page clearly organizes posts by topic cluster
 - [ ] Each blog post links to 2-3 related products or category pages
 - [ ] Each category page links to relevant blog posts ("Learn more about [topic]")
@@ -104,11 +104,14 @@ Building content that covers a topic so thoroughly that both Google AND AI syste
 ### 5. Structured Data for AI — Schema Signals
 Schema markup is a direct information feed to AI systems. Beyond basic schema, specific fields improve AI understanding and citation.
 
-**Enhanced Organization JSON-LD (homepage + about page):**
+**Enhanced Organization JSON-LD (homepage + about page):** `knowsAbout[]` is sourced from **both** the homepage row AND the shop-page row of `docs/keyword-map.md` (each row's Primary + Secondary Keywords) — never homepage alone. When no keyword-engine docs exist, use the site's own primary + top secondary keywords plus its product categories.
+
+**`@id` + `sameAs` disambiguation** (same low-cost hedge as Speakable below — see `references/seo.md` § Organization JSON-LD for the full reasoning; this block must match that one). `@id` gives this node a stable identifier other schema blocks on the site carry alongside their own inline fields. Add a Wikidata/Wikipedia `sameAs` entry only when the brand genuinely has one — never claim one that doesn't exist.
 ```json
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://[domain]/#organization",
   "name": "[Site Name]",
   "url": "https://[domain]/",
   "logo": "https://[domain]/images/logo.webp",
@@ -116,9 +119,10 @@ Schema markup is a direct information feed to AI systems. Beyond basic schema, s
   "foundingDate": "[year if known]",
   "areaServed": "[country or US/UK/Worldwide]",
   "knowsAbout": [
-    "[primary keyword]",
-    "[secondary keyword 1]",
-    "[secondary keyword 2]",
+    "[homepage primary keyword]",
+    "[homepage secondary keyword 1]",
+    "[shop page primary keyword]",
+    "[shop page secondary keyword 1]",
     "[product category 1]",
     "[product category 2]"
   ],
@@ -134,6 +138,7 @@ Schema markup is a direct information feed to AI systems. Beyond basic schema, s
   }
 }
 ```
+When the brand has a real Wikidata and/or Wikipedia entry, append its URL(s) to the `sameAs` array above alongside the social links — never add one that doesn't exist.
 
 **Speakable schema (homepage + about page):**
 Speakable is a **Google-only, still-beta** mechanism — limited to US/English users and news-article content. It does nothing on Alexa, Siri, or Bixby, and won't apply to most homepage/about-page use the way it's scoped here. Keep it as a zero-cost hedge, not a relied-upon lever.
@@ -152,6 +157,8 @@ Add class `brand-statement` to the element containing the brand entity statement
 Add class `about-intro` to the opening paragraph of the about page.
 
 **Enhanced Article JSON-LD for blog posts:**
+
+**`author` default: Organization (shown below) — unless `docs/PROJECT.md`'s "Named content author" field (intake Section N) names a real person who actually writes or reviews the content.** This block must match `seo.md`'s Article JSON-LD section exactly — see there for the `Person` variant and the "never invent a named author" rule.
 ```json
 {
   "@context": "https://schema.org",
@@ -165,6 +172,7 @@ Add class `about-intro` to the opening paragraph of the about page.
     "url": "https://[domain]/"
   },
   "publisher": {
+    "@id": "https://[domain]/#organization",
     "@type": "Organization",
     "name": "[Site Name]",
     "logo": {
@@ -202,7 +210,7 @@ Run every item. Mark ✓ pass / ✗ fail / ⚠ needs review.
 **AEO signals**
 - [ ] "What is [Brand]?" FAQ on homepage and FAQ page
 - [ ] "Where does [Brand] ship?" FAQ on FAQ page
-- [ ] All FAQ answers: direct answer in first sentence, 40-60 words
+- [ ] All FAQ answers: direct answer in first sentence — homepage FAQ 40–55 words, FAQ page up to 65 words, never exceeding 65
 - [ ] FAQPage JSON-LD on homepage and FAQ page
 - [ ] Minimum 8 questions on FAQ page, 4 on homepage FAQ section
 
@@ -213,7 +221,7 @@ Run every item. Mark ✓ pass / ✗ fail / ⚠ needs review.
 - [ ] Organization schema has: description, knowsAbout, areaServed, sameAs
 
 **Semantic SEO signals**
-- [ ] keyword-cluster.txt organized by topic cluster
+- [ ] `blog-plan.md` organized by topic cluster
 - [ ] Blog posts interlink with related products/categories
 - [ ] No orphan blog posts
 - [ ] Category pages link to relevant blog content

@@ -24,6 +24,14 @@ Per page, via `generateMetadata` (see `nextjs.md`): title ≤60 · description 1
 
 Per page, in the component: exactly one `<h1>` · breadcrumbs (except home) · JSON-LD built as an object and stringified.
 
+## Writing quality (every page that has drafted copy)
+
+**Vary sentence length and structure — flat, uniform-length sentences read as generic regardless of how good the content is.** Mix short and long sentences within a section; don't default to the same subject-verb-object shape three sentences in a row. This is a prose-quality rule, not an SEO mechanic — it sits alongside (not instead of) the keyword/structure rules elsewhere in this file.
+
+**Shift tone to match what each section is doing**, not one flat register for the whole page: a spec/trust-list reads plainly and precisely, a CTA reads more persuasively, an authority section reads more narratively. All of it stays inside the one-line brand voice collected at intake (Section A) — "warm and casual" still varies sentence rhythm and still writes a spec list plainly; it doesn't mean every sentence sounds like a chat message.
+
+This is a writing-quality check, not a visual one — it's the content-side sibling to `design-quality.md`'s rule 8 (dated AI-tells), which only scans the rendered page's visual design (palettes, nav style, typefaces). Flat, uniform prose is the same "reads as generic/templated" failure rule 8 catches visually, just in the copy instead of the layout.
+
 ---
 
 ## Home (`app/page.jsx`)
@@ -55,6 +63,20 @@ One component, two routes. `generateStaticParams` from `CATEGORIES`.
 
 **Schema:** `BreadcrumbList` (+ `OfferCatalog` on `/shop/`). **No bare `Product` on listing pages.**
 
+## Brand pages (`app/brands/[slug]/page.jsx`) + Brand Hub (`app/brands/page.jsx`) — if Section G enabled
+
+**Individual brand pages nest under the hub route** (`/brands/[slug]/`, e.g. `/brands/sur-ron/`) — matching keyword-engine's URL convention exactly (`page-mapping.md` § Brand Hub, `ai-visibility.md`'s worked example). Never a separate top-level `/brand/` route. One component, `generateStaticParams` from the brands present in `PRODUCTS`. Each: H1 = brand name, short brand intro (50–150 words), product grid filtered to that brand, breadcrumb Home > Brands > [Brand]. **Schema:** `Brand` + `BreadcrumbList`.
+
+**Brand Hub** (`/brands/`) exists only when the site stocks 3+ brands — a single aggregator page linking to every individual brand page, grid layout matching the category-grid uniformity rule, anchored Informational/Navigational with lighter treatment like the shop page (never built "conditional-pending" below 3 brands — just skipped). Under 3 brands, skip the hub; individual brand pages still exist at `/brands/[slug]/` if Section G said yes.
+
+## Best Sellers (`app/best-sellers/page.jsx`) + New Arrivals (`app/new-arrivals/page.jsx`) — if Section G enabled
+
+Each independent, built only if its own Section G answer was yes. H1 = "Best Sellers" / "New Arrivals". Intro 50–100 words. Product grid pulling from `PRODUCTS` (best-seller flag / most recently added, respectively) — same `<ProductCard>` grid as Shop. **Never let this silently duplicate the Shop page's content** — this is exactly the four-way cannibalisation check keyword-engine's audit mode runs (Shop / Category / Best Sellers / New Arrivals all pulling overlapping products needs each to target a distinct keyword angle, not just a relabeled product list). **Schema:** `BreadcrumbList` (+ `ItemList` if the full set is enumerable).
+
+## Sale / Deals (`app/sale/page.jsx`) — if Section G enabled
+
+H1 = "Sale" / "Deals". Intro 50–100 words. Product grid filtered to `PRODUCTS` currently flagged on-sale (requires a sale-price field). **Three-way cannibalisation check** (keyword-engine's audit mode, mirroring the Best Sellers/New Arrivals four-way check above) — against the homepage/shop and the relevant category page(s), since all three can end up listing the same discounted products under overlapping keyword angles. **Active-Conditional per keyword-engine's Guarantee Flag model** — if the sale ends and the page goes dormant/empty, either redirect it or keep it live with an "no current sale — check back" state; never leave it 404ing or indexable-but-empty. **Schema:** `BreadcrumbList` (+ `OfferCatalog` for the discounted set).
+
 ## Product (`app/product/[slug]/page.jsx`)
 
 `generateStaticParams` from `PRODUCTS`.
@@ -73,9 +95,13 @@ One component, two routes. `generateStaticParams` from `CATEGORIES`.
 ## Blog (`app/blog/page.jsx`, `app/blog/[slug]/page.jsx`)
 
 Index: H1, lead, post cards (date, title, excerpt, read link).
-Post: H1 (cluster keyword), date + author, `body` array rendered as H2/P, closing CTA to a category.
+Post: H1 (cluster keyword), date + author (`SITE.author.name` if set, else `SITE.brand` — same value the Article schema's `author` field uses, see `seo.md` § Article JSON-LD), `body` array rendered as H2/P (plus a `<table>`/`<ul>`/`<ol>` wherever the content is list-shaped — see below), closing CTA to a category.
 
-800–1500 words. Internal links to products/categories in-body — not just at the end. Topics come from `docs/keyword-map.md`; take the next unused cluster.
+800–1500 words. Internal links to products/categories in-body — not just at the end. Topics come from `docs/blog-plan.md`'s build queue — take the next `Pending` row in priority order, then flip it to `Built` once published. (`docs/keyword-map.md` carries page-level keyword targets only; it does not track the blog queue.)
+
+**Each H2 section answers its own heading in the first sentence, then expands.** Same front-loading principle the FAQ answers already use (`ai-visibility.md` AEO section) — applied to blog body sections too: a reader or an AI assistant pulling a passage out of context gets the actual answer immediately, not after a paragraph of lead-in. Write the heading as the real question it's answering where natural ("How long does a leather leash last?" beats "Durability"), and open that section with the direct answer.
+
+**Comparison, spec, and step-by-step content renders as a real `<table>` or `<ul>/<ol>`, never a prose paragraph describing the same thing.** If a section is inherently list-shaped — "X vs Y," a spec sheet, a numbered process — write it as the structural element, not as sentences that just happen to mention several items in a row. This is what both search and AI-answer extraction pull most reliably; a paragraph that goes "first you do X, then Y, then Z" should be a numbered list instead.
 
 **Schema:** `Article` (`datePublished`, `dateModified`, publisher, `mainEntityOfPage`) · `BreadcrumbList`.
 
@@ -112,6 +138,21 @@ Empty state links to `/shop/`.
 ## FAQ (`app/faq/page.jsx`)
 
 8–12 questions from `FAQS`, `<details>` accordion, `FAQPage` schema covering **all** rendered questions. Answers are self-contained and quotable — see `ai-visibility.md` (AEO).
+
+## Page-level mini-FAQ (product · category · brand · blog · best sellers/new arrivals · sale · compare · wholesale)
+
+**Not the homepage/FAQ-page content above — a separate, smaller FAQ block on every other mapped page that has question-intent keywords in its cluster** (keyword-engine's Phase 7 Page-Level FAQ, `content-planning.md` § Page-Level FAQ). 2–4 questions, `<details>` accordion matching the dedicated FAQ page's style, placed after the page's main content (e.g. after Related Products on a product page, after the category grid on shop/category). Its own `FAQPage` schema instance — never merged into the homepage/FAQ-page schema block, and never a duplicate of a question already answered elsewhere (link to it instead). Skip only when a page's cluster genuinely has nothing to draw on — never invent filler questions. Sourced from `keyword-map.md`'s own Per-Page "Page-Level FAQ" field when keyword-engine ran (not `faq-bank.md` — that file covers homepage/FAQ-page/blog content only); drafted from the page's own obvious buyer questions when it didn't (e.g. a product page almost always has a sizing/compatibility question even with no keyword-engine data).
+
+## Journey-Stage internal linking (cross-cutting — applies to blog + every Purchase-stage page)
+
+**keyword-engine assigns every mapped page a Journey Stage** (`keyword-map.md`'s per-page field: Awareness/Consideration/Purchase/Loyalty) **and mandates bidirectional linking between stages** (`page-mapping.md` § Journey-Stage Internal Linking) — this is the build-side rule that actually wires those links into the rendered pages, so the field doesn't just sit in the doc unused.
+
+- **Purchase-stage pages** (Category/Subcategory, Product, Shop, Sale, Wholesale, Best Sellers, New Arrivals) are the link *targets*.
+- **Awareness/Consideration-stage blog posts** are the link *source*: when building a post from `blog-plan.md`, read the Journey Stage + "funnels toward" page(s) `keyword-map.md` assigns it, and add an in-body internal link to that specific Purchase-stage page (category/product), not just a generic "shop now" CTA — this is on top of the existing "2-3 internal links to products/categories in-body" rule in the Blog section above, same links, now driven by that field when it exists.
+- **The Purchase-stage page links back**: the category/product page's "closing internal links" (already called out per page type above — "buyer's guide, legal/FAQ, wholesale" on Shop/Category, "guide + wholesale" on Product) gains the specific blog post(s) that funnel toward it, not just a generic guide link, when `keyword-map.md` names one.
+- **Loyalty-stage content** (care/maintenance/accessory posts, FAQ) links forward the same way but is additive — it doesn't replace the Awareness/Consideration linking above.
+- **No keyword-engine docs for this project:** skip this section — there's no Journey Stage field to read. Fall back to the existing generic internal-linking rules per page type (unchanged).
+- **A missing link beats a broken one:** if `keyword-map.md` names a target page that doesn't exist on this build (e.g. a conditional page type Section G said no to), skip that link rather than point at a 404 — don't invent the page just to satisfy it.
 
 ## Legal — shipping · refund · privacy · terms
 
